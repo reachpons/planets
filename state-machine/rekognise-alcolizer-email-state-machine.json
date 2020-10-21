@@ -1,0 +1,68 @@
+{
+  "StartAt": "ClassifyEmail",
+  "States": {
+    "ClassifyEmail": {
+      "Type": "Task",
+      "Resource": "${AlcolizerClassifyEmailArn}",
+      "Next": "IsBreathTest"
+    },
+    "IsBreathTest": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Not": {
+            "Variable": "$.category",
+            "StringEquals": "isBreathTest"
+          },
+          "Next": "IgnoreEmail"
+        }
+      ],
+      "Default": "ParseStoreEmail"
+    },
+    "IgnoreEmail": {
+      "Type": "Task",
+      "Resource": "${AlcolizerIgnoreEmailArn}",
+      "End": true
+    },
+    "ParseStoreEmail": {
+      "Type": "Task",
+      "Resource": "${AlcolizerParseStoreEmailArn}",
+      "Next": "MatchAllFaces"
+    },
+    "MatchAllFaces": {
+      "Type": "Map",
+      "InputPath": "$.event",
+      "ItemsPath": "$.images",
+      "Parameters": {
+        "image.$": "$$.Map.Item.Value",
+        "event-id.$": "$.id"
+      },
+      "MaxConcurrency": 0,
+      "Iterator": {
+        "StartAt": "MatchFace",
+        "States": {
+          "MatchFace": {
+            "Type": "Task",
+            "Resource": "${AlcolizerMatchFaceArn}",
+            "End": true
+          }
+        }
+      },
+      "ResultPath": "$.event.matches",
+      "Next": "WeightRekcognition"
+    },
+    "WeightRekcognition": {
+      "Type": "Task",
+      "InputPath": "$.event.matches",
+      "ResultPath": "$.event.weighted",
+      "Resource": "${AlcolizerWeightRekognitionArn}",
+      "Next": "storeOutputToS3"
+    },    
+    "storeOutputToS3": {
+      "Type": "Task",      
+      "InputPath": "$",
+      "Resource": "${AlcolizerStoreOutputToS3}",
+      "End": true
+    }
+  }
+}

@@ -1,0 +1,311 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  The is to deply the lambda function used but the alcolizer-rekognition step function
+  to parse and process the Alcolizer email.
+Parameters:
+  AlcolizerBucket:
+    Type: String
+    Default: large-alcolizer-rekognition 
+    Description: The name of the S3 bucket to store the Alcolizer files.
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.
+Resources:
+  AlcolizerStartStepFunctionHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-start-stepfunction
+      Handler: alcolizer-start-stepfunction.lambda_handler
+      Role: !GetAtt
+        - BasicRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-start-stepfunction.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerClassifyEmailHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-classify-email
+      Handler: alcolizer-classify-email.lambda_handler
+      Role: !GetAtt
+        - S3ReadRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket
+        S3Key: code/handlers/alcolizer-classify-email.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerIgnoreEmailHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-ignore-email
+      Handler: alcolizer-ignore-email.lambda_handler
+      Role: !GetAtt
+        - BasicRole
+        - Arn
+      Code:
+          S3Bucket: !Ref AlcolizerBucket 
+          S3Key: code/handlers/alcolizer-ignore-email.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerParseStoreEmailHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-parse-store-email
+      Handler: alcolizer-parse-store-email.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-parse-store-email.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerMatchFaceHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-match-face
+      Handler: alcolizer-match-face.lambda_handler
+      Role: !GetAtt
+        - LambdaAcceS3AccessRekognitionAccessRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-match-face.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerWeightRekognitionHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-weight-rekognition
+      Handler: alcolizer-weight-rekognition.lambda_handler
+      Role: !GetAtt
+        - BasicRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-weight-rekognition.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerStoreOutputToS3Hndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-store-output-s3
+      Handler: alcolizer-store-output-s3.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-store-output-s3.zip
+      Runtime: python3.8
+      Timeout: 300
+  AlcolizerRekognizerEmailStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: Alcolizer-Rekognizer-Email-Statemachine
+      RoleArn: !GetAtt
+        - AlcolizerStepFunctionRole
+        - Arn
+      DefinitionS3Location:
+        Bucket: !Ref AlcolizerBucket 
+        Key: code/state-machine/rekognise-alcolizer-email-state-machine.json
+      DefinitionSubstitutions:      
+        AlcolizerClassifyEmailArn: !GetAtt 
+          - AlcolizerClassifyEmailHndlr
+          - Arn
+        AlcolizerIgnoreEmailArn: !GetAtt 
+          - AlcolizerIgnoreEmailHndlr 
+          - Arn
+        AlcolizerParseStoreEmailArn: !GetAtt 
+          - AlcolizerParseStoreEmailHndlr
+          - Arn
+        AlcolizerMatchFaceArn: !GetAtt 
+          - AlcolizerMatchFaceHndlr 
+          - Arn 
+        AlcolizerWeightRekognitionArn: !GetAtt 
+          - AlcolizerWeightRekognitionHndlr
+          - Arn    
+        AlcolizerStoreOutputToS3: !GetAtt 
+          - AlcolizerStoreOutputToS3Hndlr
+          - Arn         
+  BasicRole:
+    Type: 'AWS::IAM::Role'    
+    Properties:
+      RoleName: alcolizer-rekognition-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+          - PolicyName: AlcolizerAccessParameter
+            PolicyDocument:
+              Version: 2012-10-17                           
+              Statement:
+                - Effect: Allow
+                  Action: 
+                    - 'states:StartExecution'
+                  Resource: '*'
+                - Effect: Allow
+                  Action: 
+                    - 'ssm:GetParameter'
+                    - 'ssm:GetParameters'
+                    - 'ssm:GetParametersByPath'
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                                
+  LambdaS3AccessLambdaPutRole:
+      Type: 'AWS::IAM::Role'    
+      Properties:
+        RoleName: alcolizer-rekognition-lambda-parse-email-role
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+          - 'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess'
+        Policies:
+          - PolicyName: AlcolizerAccessS3BucketA
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: 
+                      - 's3:GetObject'
+                      - 's3:PutObject'
+                      - 's3:PutObjectAcl'
+                  Resource: !Join ['', ['arn:aws:s3:::', !Ref 'AlcolizerBucket', '/*']]                     
+                - Effect: Allow
+                  Action: 
+                    - 'ssm:GetParameter'
+                    - 'ssm:GetParameters'
+                    - 'ssm:GetParametersByPath'
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                      
+  S3ReadRole:
+      Type: 'AWS::IAM::Role'    
+      Properties:
+        RoleName: alcolizer-rekognition-read-s3-role
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        Policies:
+          - PolicyName: AlcolizerAccessS3BucketB
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: 
+                      - 's3:GetObject'
+                  Resource: !Join ['', ['arn:aws:s3:::', !Ref 'AlcolizerBucket', '/*']]                
+                - Effect: Allow
+                  Action: 
+                    - 'ssm:GetParameter'
+                    - 'ssm:GetParameters'
+                    - 'ssm:GetParametersByPath'
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*     
+  LambdaAcceS3AccessRekognitionAccessRole:
+      Type: 'AWS::IAM::Role'    
+      Properties:
+        RoleName: alcolizer-rekognition-match-faces-role
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+          - 'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess'          
+          - 'arn:aws:iam::aws:policy/AmazonRekognitionFullAccess'
+        Policies:
+          - PolicyName: AlcolizerAccessS3BucketC
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: 
+                    - 's3:GetObject'
+                  Resource: !Join ['', ['arn:aws:s3:::', !Ref 'AlcolizerBucket', '/*']]                
+                - Effect: Allow
+                  Action: 
+                    - 'ssm:GetParameter'
+                    - 'ssm:GetParameters'
+                    - 'ssm:GetParametersByPath'
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*       
+  AlcolizerStepFunctionRole:
+    Type: 'AWS::IAM::Role'    
+    Properties:
+      RoleName: alcolizer-rekognition-step-function-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub states.${AWS::Region}.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: AlcolizerAccessS3BucketC
+          PolicyDocument:
+            Version: 2012-10-17            
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - 'lambda:InvokeFunction'
+                Resource: 
+                  - !GetAtt 
+                    - AlcolizerClassifyEmailHndlr
+                    - Arn
+                  - !GetAtt 
+                    - AlcolizerIgnoreEmailHndlr
+                    - Arn
+                  - !GetAtt 
+                    - AlcolizerParseStoreEmailHndlr
+                    - Arn
+                  - !GetAtt 
+                    - AlcolizerMatchFaceHndlr 
+                    - Arn 
+                  - !GetAtt 
+                    - AlcolizerWeightRekognitionHndlr
+                    - Arn       
+                  - !GetAtt 
+                    - AlcolizerStoreOutputToS3Hndlr
+                    - Arn           
+              - Effect: Allow
+                Action: 
+                  - 'xray:PutTraceSegments'
+                  - 'xray:PutTelemetryRecords'
+                  - 'ray:GetSamplingRules'
+                  - 'xray:GetSamplingTargets'
+                Resource: '*'            
+              - Effect: Allow
+                Action: 
+                  - 'ssm:GetParameter'
+                  - 'ssm:GetParameters'
+                  - 'ssm:GetParametersByPath'
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*            
+  
