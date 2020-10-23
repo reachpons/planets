@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  The parameters used by the Alcolizer-Rekognition Serverless Application
+Resources:
+  UATApplicationRegionParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/uat/dynamoDB/region
+      DataType: text
+      Description: The region for the Rekognition Collection and DynamboDB tables.                
+      Tier: Standard
+      Type: String
+      Value: ap-southeast-2
+  UATApplicationAlcolizerResultsDBTableParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/uat/dynamoDB/breathalyzer-result-table
+      DataType: text
+      Description: The DynamoDB table for storeing the Alcolizer Readings.
+      Tier: Standard
+      Type: String
+      Value: alcolizer-breathalyzer-results
+  UATApplicationRekognitionResultsDBTableParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/dynamoDB/rekognition-result
+        DataType: text
+        Description: The DynamoDB table for storeing the Rekognition results.
+        Tier: Standard
+        Type: String
+        Value: alcolizer-Rekognition
+  UATApplicationS3BucketParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/s3/bucket
+        DataType: text
+        Description: The s3 bucket for the Alcolizer - Rekognition app.
+        Tier: Standard
+        Type: String
+        Value: large-alcolizer-rekognition
+  UATApplicationS3FacesKeyParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/s3/facesKey
+        DataType: text
+        Description: The folder for the faces extracted from the email.
+        Tier: Standard
+        Type: String
+        Value: faces/
+  UATApplicationStepFunctionParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/step-function
+        DataType: text
+        Description: The ARN for the Step Function that orhestrates parsing the email.
+        Tier: Standard
+        Type: String
+        Value: arn:aws:states:ap-southeast-2:281391661042:stateMachine:Alcolizer-Rekognizer-Email-Statemachine
+  UATApplicationRekognitionCollectionIdParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/collection-id
+        DataType: text
+        Description: The ARN for the Step Function that orhestrates parsing the email.
+        Tier: Standard
+        Type: String
+        Value: large-rekognition-collection
+  UATApplicationS3OutputKeyParameter:
+      Type: AWS::SSM::Parameter
+      Properties: 
+        Name: /alcolizer-rekognition/uat/s3/outputKey
+        DataType: text
+        Description: The S3 folder for storing the step function output .
+        Tier: Standard
+        Type: String
+        Value: output/
+  

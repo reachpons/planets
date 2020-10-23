@@ -4,18 +4,13 @@ import json
 import uuid
 from datetime import datetime
 import logging
-
-logger=None
+import os
+from ssm_parameter_store import SSMParameterStore
 
 def establish_logger():
     logr = logging.getLogger()
     logr.setLevel(logging.INFO)
     return logr
-
-def getParameter(name):
-    ssm = bto.client('ssm')
-    parameter = ssm.get_parameter(Name=name, WithDecryption=False)['Parameter']
-    return parameter['Value']
 
 def loadEmail(s3bucket,s3key):
     s3 = bto.resource('s3')
@@ -31,8 +26,8 @@ def parseIdentification(dict,data):
 
       
 def storeToDynamoDB(row):
-    dynamoDBTable = getParameter('/alcolizer-rekognition/dynamoDB/breathalyzer-result-table') 
-    dynamoDBRegion = getParameter('/alcolizer-rekognition/dynamoDB/region') 
+    dynamoDBTable = store['dynamoDB/breathalyzer-result-table']
+    dynamoDBRegion = store['dynamoDB/region']
     try:
         dynamodb = bto.resource('dynamodb', region_name=dynamoDBRegion)
         table = dynamodb.Table(dynamoDBTable)    
@@ -44,7 +39,8 @@ def storeToDynamoDB(row):
     table.put_item(Item=row)
 
 def saveImages(images,eventId):
-    s3bucket = getParameter('/alcolizer-rekognition/s3/bucket')
+    s3bucket = store['s3/bucket']
+
     for img in images:  
         message_bytes = base64.b64decode(img["raw"])
         s3Client = bto.client('s3')
@@ -70,7 +66,7 @@ def splitEmail(content):
     data={}
     images=[]
 
-    s3FacesKey = getParameter('/alcolizer-rekognition/s3/facesKey') 
+    s3FacesKey = store['s3/facesKey']
     eventid=str(uuid.uuid1())
     
     for itm in records[0]:                
@@ -115,8 +111,13 @@ def splitEmail(content):
     }
 
 def lambda_handler(event, context):
-    
+      
+    global logger
     logger=establish_logger()
+    
+    hierarchy = os.environ['hierarchy']
+    global store
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
 
     bucket = event['email']['bucket']
     key = event['email']['key']

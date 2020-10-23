@@ -4,18 +4,14 @@ import json
 import sys
 import uuid
 from botocore.config import Config
-
 from datetime import datetime
+import os
+from ssm_parameter_store import SSMParameterStore
 
 def establish_logger():
     logr = logging.getLogger()
     logr.setLevel(logging.INFO)
     return logr
-    
-def getParameter(name):
-    ssm = bto.client('ssm')
-    parameter = ssm.get_parameter(Name=name, WithDecryption=False)['Parameter']
-    return parameter['Value']
 
 def search(bucket,imageKey,collectionId,logger):
     threshold = 85
@@ -50,8 +46,8 @@ def search(bucket,imageKey,collectionId,logger):
 
 def getTable():
 
-    dynamoDBTable = getParameter('/alcolizer-rekognition/dynamoDB/rekognition-result') 
-    dynamoDBRegion = getParameter('/alcolizer-rekognition/dynamoDB/region') 
+    dynamoDBTable = store['dynamoDB/rekognition-result']
+    dynamoDBRegion = store['dynamoDB/region']
     try:
         dynamodb = bto.resource('dynamodb', region_name=dynamoDBRegion)
         table = dynamodb.Table(dynamoDBTable)
@@ -115,14 +111,20 @@ def storeToDynamonDB(eventid,key,results):
  
 def lambda_handler(event,context):
     
+    global logger
     logger=establish_logger()
     logger.info(event) 
+
+    hierarchy = os.environ['hierarchy']
+    global store
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
     
-    collectionId = getParameter('/alcolizer-rekognition/collection-id') 
+    collectionId = store['collection-id']
+    bucket = store['s3/bucket']
+    
     eventid=event['event-id']
     
-    s3 = bto.client('s3')
-    bucket = getParameter('/alcolizer-rekognition/s3/bucket')
+    s3 = bto.client('s3')    
     key = event['image']['imagekey']
         
     logger.info("New file [%s] added to the s3 Bucket [%s].",key,bucket)

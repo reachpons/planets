@@ -1,20 +1,18 @@
 import json
 import boto3
-
-def getParameter(name):
-    ssm = boto3.client('ssm')
-    parameter = ssm.get_parameter(Name=name, WithDecryption=False)['Parameter']
-    return parameter['Value']
+import os
+from ssm_parameter_store import SSMParameterStore
 
 def lambda_handler(event, context):
     
-    stepARN = getParameter('/alcolizer-rekognition/step-function')
+    hierarchy = os.environ['hierarchy']
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
+    
+    stepARN =store['step-function']
+
     client = boto3.client('stepfunctions')
     
-    response = client.start_execution (
-            stateMachineArn=stepARN,
-            input=json.dumps(event)
-            )
+    response = client.start_execution (stateMachineArn = stepARN, input = json.dumps(event) )
 
     return {
         'statusCode': 200,

@@ -3,6 +3,12 @@ Description: >-
   The is to deply the lambda function used but the alcolizer-rekognition step function
   to parse and process the Alcolizer email.
 Parameters:
+  HierarchyKey:
+    Type: String
+    Default: dev
+    Description: This is the environment that will determine the SSMParamaters - dev/test/production
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.    
   AlcolizerBucket:
     Type: String
     Default: large-alcolizer-rekognition 
@@ -22,6 +28,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket 
         S3Key: code/handlers/alcolizer-start-stepfunction.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerClassifyEmailHndlr:
     Type: AWS::Lambda::Function
@@ -35,6 +44,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket
         S3Key: code/handlers/alcolizer-classify-email.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerIgnoreEmailHndlr:
     Type: AWS::Lambda::Function
@@ -48,6 +60,9 @@ Resources:
           S3Bucket: !Ref AlcolizerBucket 
           S3Key: code/handlers/alcolizer-ignore-email.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerParseStoreEmailHndlr:
     Type: AWS::Lambda::Function
@@ -61,6 +76,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket 
         S3Key: code/handlers/alcolizer-parse-store-email.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerMatchFaceHndlr:
     Type: AWS::Lambda::Function
@@ -74,6 +92,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket 
         S3Key: code/handlers/alcolizer-match-face.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerWeightRekognitionHndlr:
     Type: AWS::Lambda::Function
@@ -87,6 +108,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket 
         S3Key: code/handlers/alcolizer-weight-rekognition.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerStoreOutputToS3Hndlr:
     Type: AWS::Lambda::Function
@@ -100,6 +124,9 @@ Resources:
         S3Bucket: !Ref AlcolizerBucket 
         S3Key: code/handlers/alcolizer-store-output-s3.zip
       Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
   AlcolizerRekognizerEmailStateMachine:
     Type: AWS::StepFunctions::StateMachine
