@@ -68,14 +68,16 @@ def splitEmail(content):
 
     s3FacesKey = store['s3/facesKey']
     eventid=str(uuid.uuid1())
+    utcDateIssued=datetime.utcnow()
     
-    for itm in records[0]:                
+    for itm in records[0]:    
+        ix='{}year={}/month={}/day={}/{}.jpg'.format(s3FacesKey,utcDateIssued.year,utcDateIssued.month,utcDateIssued.day,str(uuid.uuid1()))            
         if itm['id'] == '1': 
             data['logRecordID']=itm["raw"]
             data['eventId']= eventid
         data['utcdatetime'] =datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]    
         if itm['id'] == '3': data['alcolizerDateTime']=itm["ui_text"]
-        if itm['id'] == '47': photos.append({ 'imagekey' : s3FacesKey+ str(uuid.uuid1()) +'.jpg' , 'raw' : itm["raw"] })
+        if itm['id'] == '47': photos.append({ 'imagekey' : ix , 'raw' : itm["raw"] })
         if itm['id'] == '5': 
             data['internalRaw']= itm["raw"]
             data['internalValue']= itm["value"]
