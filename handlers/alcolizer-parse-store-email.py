@@ -6,6 +6,8 @@ from datetime import datetime
 import logging
 import os
 from ssm_parameter_store import SSMParameterStore
+from urllib.parse import unquote
+
 
 def establish_logger():
     logr = logging.getLogger()
@@ -14,7 +16,10 @@ def establish_logger():
 
 def loadEmail(s3bucket,s3key):
     s3 = bto.resource('s3')
-    obj = s3.Object(s3bucket, s3key)
+    
+    unkey = unquote(s3key)
+    obj = s3.Object(s3bucket, unkey)
+    
     body = obj.get()['Body'].read()
     return json.loads(body)
 
