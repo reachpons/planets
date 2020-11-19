@@ -7,6 +7,8 @@ import logging
 import os
 from ssm_parameter_store import SSMParameterStore
 from urllib.parse import unquote
+from decimal import Decimal
+
 
 
 def establish_logger():
@@ -85,7 +87,7 @@ def splitEmail(content):
         if itm['id'] == '47': photos.append({ 'imagekey' : ix , 'raw' : itm["raw"] })
         if itm['id'] == '5': 
             data['internalRaw']= itm["raw"]
-            data['internalValue']= itm["value"]
+            data['internalValue']= Decimal(itm["value"])
             data['internalText']= itm["ui_text"]            
         if itm['id'] == '54': 
             data['resultRange']=itm["raw"]
