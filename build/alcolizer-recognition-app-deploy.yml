@@ -128,6 +128,70 @@ Resources:
         Variables:
           hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
+  AlcolizerStoreStatusToS3Hndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-store-status-log
+      Handler: alcolizer-store-status-log.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-store-status-log.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300
+  AlcolizerSendStatusNotificationHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-send-status-notification
+      Handler: alcolizer-send-status-notification.lambda_handler
+      Role: !GetAtt
+        - BasicRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-send-status-notification.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300      
+  AlcolizerSendPositiveNotificationHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-send-positive-notification
+      Handler: alcolizer-send-positive-notification.lambda_handler
+      Role: !GetAtt
+        - BasicRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-send-positive-notification.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300
+  AlcolizerExtractEmailAttachmentHndlr:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alcolizer-extract-email-attachment
+      Handler: alcolizer-extract-email-attachment.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-extract-email-attachment.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300
   AlcolizerRekognizerEmailStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
@@ -154,9 +218,21 @@ Resources:
         AlcolizerWeightRekognitionArn: !GetAtt 
           - AlcolizerWeightRekognitionHndlr
           - Arn    
-        AlcolizerStoreOutputToS3: !GetAtt 
+        AlcolizerStoreOutputToS3Arn: !GetAtt 
           - AlcolizerStoreOutputToS3Hndlr
           - Arn         
+        AlcolizerStoreStatusToS3Arn: !GetAtt 
+          - AlcolizerStoreStatusToS3Hndlr
+          - Arn     
+        AlcolizerSendStatusNotificationArn: !GetAtt 
+          - AlcolizerSendStatusNotificationHndlr
+          - Arn       
+        AlcolizerSendPositiveNotificationArn: !GetAtt 
+          - AlcolizerSendPositiveNotificationHndlr
+          - Arn       
+        AlcolizerExtractEmailAttachmentArn: !GetAtt
+          - AlcolizerExtractEmailAttachmentHndlr
+          - Arn  
   BasicRole:
     Type: 'AWS::IAM::Role'    
     Properties:
@@ -321,7 +397,19 @@ Resources:
                     - Arn       
                   - !GetAtt 
                     - AlcolizerStoreOutputToS3Hndlr
-                    - Arn           
+                    - Arn    
+                  - !GetAtt 
+                    - AlcolizerStoreStatusToS3Hndlr
+                    - Arn    
+                  - !GetAtt 
+                    - AlcolizerSendStatusNotificationHndlr
+                    - Arn  
+                  - !GetAtt 
+                    - AlcolizerSendPositiveNotificationHndlr
+                    - Arn  
+                  - !GetAtt 
+                    - AlcolizerExtractEmailAttachmentHndlr
+                    - Arn        
               - Effect: Allow
                 Action: 
                   - 'xray:PutTraceSegments'
