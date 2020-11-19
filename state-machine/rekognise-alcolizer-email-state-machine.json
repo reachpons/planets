@@ -1,27 +1,46 @@
 {
-  "StartAt": "ClassifyEmail",
+  "StartAt": "ExtractEmailAttachment",
   "States": {
+    "ExtractEmailAttachment": {
+      "Type": "Task",
+      "Resource": "${AlcolizerExtractEmailAttachmentArn}",
+      "Next": "ClassifyEmail"
+    },
     "ClassifyEmail": {
       "Type": "Task",
       "Resource": "${AlcolizerClassifyEmailArn}",
       "Next": "IsBreathTest"
     },
     "IsBreathTest": {
-      "Type": "Choice",
+      "Type": "Choice", 
       "Choices": [
         {
-          "Not": {
-            "Variable": "$.category",
-            "StringEquals": "isBreathTest"
-          },
-          "Next": "IgnoreEmail"
-        }
+          "Variable": "$.category",
+          "StringEquals": "isBreathTest",
+          "Next": "ParseStoreEmail"
+        },
+        {
+          "Variable": "$.category",
+          "StringEquals": "isStatusReport",
+          "Next": "storeStatusLog"
+        }          
       ],
-      "Default": "ParseStoreEmail"
+      "Default": "IgnoreEmail"
     },
     "IgnoreEmail": {
       "Type": "Task",
       "Resource": "${AlcolizerIgnoreEmailArn}",
+      "End": true
+    },    
+    "storeStatusLog": {
+      "Type": "Task",
+      "ResultPath": "$.status",
+      "Resource": "${AlcolizerStoreStatusToS3Arn}",
+      "Next": "sendStatusNotification"
+    },
+    "sendStatusNotification": {
+      "Type": "Task",
+      "Resource": "${AlcolizerSendStatusNotificationArn}",
       "End": true
     },
     "ParseStoreEmail": {
@@ -56,12 +75,30 @@
       "InputPath": "$.event.matches",
       "ResultPath": "$.event.weighted",
       "Resource": "${AlcolizerWeightRekognitionArn}",
-      "Next": "storeOutputToS3"
+      "Next": "IsPositiveResult"
+    },
+    "IsPositiveResult": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.event.alcolizerResult.resultAlcohol",
+          "NumericGreaterThan": 0,
+          "Next": "sendPositiveAlcoholNotification"
+        }      
+      ],
+      "Default": "storeOutputToS3"
     },    
+    "sendPositiveAlcoholNotification": {
+      "Type": "Task",
+      "InputPath": "$",
+      "ResultPath": "$.event.notification",
+      "Resource": "${AlcolizerSendPositiveNotificationArn}",
+      "Next": "storeOutputToS3"
+    },
     "storeOutputToS3": {
       "Type": "Task",      
       "InputPath": "$",
-      "Resource": "${AlcolizerStoreOutputToS3}",
+      "Resource": "${AlcolizerStoreOutputToS3Arn}",
       "End": true
     }
   }
