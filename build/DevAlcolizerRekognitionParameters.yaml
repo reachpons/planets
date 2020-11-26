@@ -19,7 +19,7 @@ Resources:
       Description: The DynamoDB table for storeing the Alcolizer Readings.
       Tier: Standard
       Type: String
-      Value: alcolizer-breathalyzer-results
+      Value: alcolizer-dev-breathalyzer-results
   DevApplicationRekognitionResultsDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -28,7 +28,7 @@ Resources:
       Description: The DynamoDB table for storeing the Rekognition results.
       Tier: Standard
       Type: String
-      Value: alcolizer-Rekognition
+      Value: alcolizer-dev-rekognition-results
   DevApplicationS3BucketParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -37,7 +37,7 @@ Resources:
       Description: The s3 bucket for the Alcolizer - Rekognition app.
       Tier: Standard
       Type: String
-      Value: large-alcolizer-rekognition
+      Value: dev-alcolizer-rekognition
   DevApplicationS3FacesKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -64,7 +64,7 @@ Resources:
       Description: The ARN for the Step Function that orhestrates parsing the email.
       Tier: Standard
       Type: String
-      Value: large-rekognition-collection
+      Value: uat-rekognition-collection
   DevApplicationS3OutputKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -92,4 +92,21 @@ Resources:
       Tier: Standard
       Type: String
       Value: status/
-  
+  DevGallagherAuthorizationKeyParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/gallagher/authorizationKey
+      DataType: text
+      Description: The region for the Rekognition Collection and DynamboDB tables.                
+      Tier: Standard
+      Type: String
+      Value: GGL-API-KEY 17D5-F104-F506-1D37-72AC-B5E6-ACFC-87A2  
+  DevGallagherAPIUrlParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/gallagher/API-url 
+      DataType: text
+      Description: The region for the Rekognition Collection and DynamboDB tables.                
+      Tier: Standard
+      Type: String
+      Value: https://uatgal01.fmguat.local:8904  

@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  The is to deploy the two dynamodb tables used by the Alcolizer-rekcognition app.    
+Resources: 
+  alcolizerResults: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: alcolizer-dev-breathalyzer-results
+      KeySchema: 
+          - AttributeName: 'eventId'
+            KeyType: "HASH"
+          - AttributeName: 'utcdatetime'
+            KeyType: "RANGE"
+      ProvisionedThroughput: 
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5      
+      AttributeDefinitions: 
+        - AttributeName: 'eventId'
+          AttributeType: 'S'
+        - AttributeName: 'utcdatetime'
+          AttributeType: 'S'
+  rekognitionResults: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: alcolizer-dev-rekognition-results
+      KeySchema: 
+          - AttributeName: 'rowUid'
+            KeyType: "HASH"
+      ProvisionedThroughput: 
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5      
+      AttributeDefinitions: 
+        - AttributeName: 'rowUid'
+          AttributeType: 'S'
