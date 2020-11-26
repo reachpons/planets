@@ -58,19 +58,6 @@ def getAttachment(content):
     decoded = content.decode('utf-8') 
     msg = email.message_from_string(decoded)  # ? encoding = 'ISO-8859-1'
     msg_content_type = msg.get_content_type()
-
-
-    print('Return-Path->{}'.format(chevronLess(msg['Return-Path'])))
-    print('Received->{}'.format(chevronLess(msg['Received'])))
-    print('To->{}'.format(chevronLess(msg['To'])))
-    print('From->{}'.format(chevronLess(msg['From'])))
-
-    print('Return-Path->{}'.format(msg['Return-Path']))
-    print('Received->{}'.format(msg['Received']))
-    print('To->{}'.format(msg['To']))
-    print('From->{}'.format(msg['From']))
-    print('Subject->{}'.format(msg['Subject']))
-    print('DKIM-Signature->{}'.format(msg['DKIM-Signature']))
     
     attachmentName=None
     for part in msg.walk():

@@ -66,12 +66,10 @@ def weight(event):
     sapid,final,confidence=determine(pairs)
            
     return { 
-        'weightedOutcome' : {
             'similarity' : final,
             'sapid' :sapid,
             'confidence' : confidence
         }
-    }
 
 def lambda_handler(event, context):
     

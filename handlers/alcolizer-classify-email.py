@@ -1,4 +1,4 @@
-import boto3 as bto
+]import boto3 as bto
 import json
 import logging
 from urllib.parse import unquote
@@ -15,6 +15,22 @@ from urllib.parse import unquote
 # Only Log have paramaters with 'id' = 22, 23  
 # Only Result  have paramaters with 'id' = 47, 56, 54, 9, 2
 
+GROUPS ='groups'
+SET ='set'
+PARAMETERS='parameters'
+RECORDS='records'
+EMAIL='email'
+BUCKET='bucket'
+KEY='key'
+
+IS_BREATH='isBreathTest'
+IS_STATUS='isStatusReport'
+IS_LOG='isLogReport'
+IS_UNKOWN='isUnkown'
+
+STATUS='statusCode'
+CATEGORY='category'
+NOTE='note'
 
 def loadAttachment(s3bucket,s3key):
     s3 = bto.resource('s3')
@@ -34,19 +50,19 @@ def establish_logger():
 def isStatus(dict):
     if dict is None: return None
 
-    groupsEle=dict.get('groups')
-    setEle=dict.get('set')
+    groupsEle=dict.get(GROUPS)
+    setEle=dict.get(SET)
 
     return groupsEle is not None and setEle is not None
 
 def isLog(dict):
     
-    params=dict.get('parameters')  
+    params=dict.get(PARAMETERS)  
     return {'22','23'} <= params.keys()
 
 def isResult(dict):
     
-    params=dict.get('parameters')   
+    params=dict.get(PARAMETERS)   
     if params is None : return False 
 
     #test whether every element in l in r 
@@ -59,8 +75,8 @@ def unrecognisedIgnore(dict):
 def statusReport(dict):
     if dict is None: return None
 
-    groups=dict.get('groups')
-    sets=dict.get('set')
+    groups=dict.get(GROUPS)
+    sets=dict.get(SET)
     rslts=[]
     for st in sets:        
         grp=st['group']
@@ -80,8 +96,8 @@ def statusReport(dict):
 def logReport(dict):
     if dict is None: return None
 
-    records=dict.get('records')
-    parameters=dict['parameters']
+    records=dict.get(RECORDS)
+    parameters=dict[PARAMETERS]
     rslts=[]
     for rec in records:
         for itm in rec:
@@ -96,7 +112,7 @@ def logReport(dict):
 
             
     report = {
-        'records' :rslts
+        RECORDS :rslts
     }
     return report
 
@@ -104,13 +120,13 @@ def logReport(dict):
 def parseAttachment(attachment):
           
     if isResult(attachment):         
-        category,reportType="isBreathTest","Breathalyser Report"
+        category,reportType=IS_BREATH,"Breathalyser Report"
     elif isStatus(attachment):
-        category,reportType="isStatusReport","Status Report"
+        category,reportType=IS_STATUS,"Status Report"
     elif isLog(attachment):         
-        category,reportType="isLogReport","Log Report"
+        category,reportType=IS_LOG,"Log Report"
     else:
-        category,reportType="isUnkown",'Unknown email Attachment Type'
+        category,reportType=IS_UNKOWN,'Unknown email Attachment Type'
 
     return category,reportType 
 
@@ -120,8 +136,8 @@ def lambda_handler(event, context):
     global logger
     logger=establish_logger()
        
-    bucket = event['email']['bucket']
-    key = event['email']['key']
+    bucket = event[EMAIL][ BUCKET ]
+    key = event[EMAIL][KEY]
     
     # Evaluate  the type of email from the content  
     # to be completed at a later date
@@ -131,11 +147,11 @@ def lambda_handler(event, context):
     category,reportType= parseAttachment(content)
 
     return {
-            'statusCode': 200,
-            'category': category, 
-            'note'  : reportType,         
-            'email' : {
-                    'bucket' : bucket,
-                    'key' : key
+            STATUS: 200,
+            CATEGORY: category, 
+            NOTE  : reportType,         
+            EMAIL : {
+                    BUCKET : bucket,
+                    KEY : key
                 }
         }          
