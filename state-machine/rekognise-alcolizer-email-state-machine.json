@@ -81,7 +81,7 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.event.alcolizerResult.resultAlcohol",
+          "Variable": "$.event.alcolizerResult.internalValue",
           "NumericGreaterThan": 0,
           "Next": "sendPositiveAlcoholNotification"
         }      
