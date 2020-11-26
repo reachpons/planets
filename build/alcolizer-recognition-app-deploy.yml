@@ -11,15 +11,15 @@ Parameters:
     ConstraintDescription: This parameter is required.    
   AlcolizerBucket:
     Type: String
-    Default: large-alcolizer-rekognition 
+    Default: dev-alcolizer-rekognition 
     Description: The name of the S3 bucket to store the Alcolizer files.
     MinLength: '1'
-    ConstraintDescription: This parameter is required.
+    ConstraintDescription: This parameter is required.    
 Resources:
   AlcolizerStartStepFunctionHndlr:
     Type: AWS::Lambda::Function
-    Properties:
-      FunctionName: alcolizer-start-stepfunction
+    Properties:      
+      FunctionName : !Join ['', ['alcolizer-start-stepfunction', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-start-stepfunction.lambda_handler
       Role: !GetAtt
         - BasicRole
@@ -35,7 +35,7 @@ Resources:
   AlcolizerClassifyEmailHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-classify-email
+      FunctionName: !Join ['', ['alcolizer-classify-email', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-classify-email.lambda_handler
       Role: !GetAtt
         - S3ReadRole
@@ -51,7 +51,7 @@ Resources:
   AlcolizerIgnoreEmailHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-ignore-email
+      FunctionName: !Join ['', ['alcolizer-ignore-email', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-ignore-email.lambda_handler
       Role: !GetAtt
         - BasicRole
@@ -67,7 +67,7 @@ Resources:
   AlcolizerParseStoreEmailHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-parse-store-email
+      FunctionName: !Join ['', ['alcolizer-parse-store-email', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-parse-store-email.lambda_handler
       Role: !GetAtt
         - LambdaS3AccessLambdaPutRole
@@ -83,7 +83,7 @@ Resources:
   AlcolizerMatchFaceHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-match-face
+      FunctionName: !Join ['', ['alcolizer-match-face', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-match-face.lambda_handler
       Role: !GetAtt
         - LambdaAcceS3AccessRekognitionAccessRole
@@ -99,7 +99,7 @@ Resources:
   AlcolizerWeightRekognitionHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-weight-rekognition
+      FunctionName: !Join ['', ['alcolizer-weight-rekognition', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-weight-rekognition.lambda_handler
       Role: !GetAtt
         - BasicRole
@@ -115,7 +115,7 @@ Resources:
   AlcolizerStoreOutputToS3Hndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-store-output-s3
+      FunctionName: !Join ['', ['alcolizer-store-output-s3', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-store-output-s3.lambda_handler
       Role: !GetAtt
         - LambdaS3AccessLambdaPutRole
@@ -131,7 +131,7 @@ Resources:
   AlcolizerStoreStatusToS3Hndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-store-status-log
+      FunctionName: !Join ['', ['alcolizer-store-status-log', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-store-status-log.lambda_handler
       Role: !GetAtt
         - LambdaS3AccessLambdaPutRole
@@ -147,7 +147,7 @@ Resources:
   AlcolizerSendStatusNotificationHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-send-status-notification
+      FunctionName: !Join ['', ['alcolizer-send-status-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-status-notification.lambda_handler
       Role: !GetAtt
         - BasicRole
@@ -163,7 +163,7 @@ Resources:
   AlcolizerSendPositiveNotificationHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-send-positive-notification
+      FunctionName: !Join ['', ['alcolizer-send-positive-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-positive-notification.lambda_handler
       Role: !GetAtt
         - BasicRole
@@ -179,7 +179,7 @@ Resources:
   AlcolizerExtractEmailAttachmentHndlr:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: alcolizer-extract-email-attachment
+      FunctionName: !Join ['', ['alcolizer-extract-email-attachment', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-extract-email-attachment.lambda_handler
       Role: !GetAtt
         - LambdaS3AccessLambdaPutRole
@@ -195,7 +195,7 @@ Resources:
   AlcolizerRekognizerEmailStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
-      StateMachineName: Alcolizer-Rekognizer-Email-Statemachine
+      StateMachineName: !Join ['', ['Alcolizer-Rekognizer-Email-Statemachine', '-', !Ref 'HierarchyKey']]
       RoleArn: !GetAtt
         - AlcolizerStepFunctionRole
         - Arn
