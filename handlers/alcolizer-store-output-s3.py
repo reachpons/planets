@@ -30,12 +30,8 @@ def lambda_handler(event, context):
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
 
-    eventid= event[EVENT][ID]  
-    
-    bucket = event['email']['bucket']
-    key = event['email']['key']
-    output= json.dumps(event,indent=4) 
-   
+    eventid= event[EVENT][ID]      
+    output= json.dumps(event,indent=4)    
     storeToS3(eventid,output)
 
     return {

@@ -1,5 +1,6 @@
 import boto3
 
+
 PARAMETERS ='Parameters'
 
 class SSMParameterStore(object):
@@ -13,15 +14,25 @@ class SSMParameterStore(object):
         self.getParametersByPath()
     
     def getParametersByPath(self):        
-        parameters = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption)[PARAMETERS]     
-
+        response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption)
+        parameters = response[PARAMETERS]  
+        self.extract(parameters)
+        nextToken=response.get('NextToken')        
+        while nextToken:
+            response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption, NextToken=nextToken)
+            nextToken=response.get('NextToken')
+            parameters = response[PARAMETERS]  
+            self.extract(parameters)
+            
+        
+        return self._params
+    
+    def extract(self,parameters):
         for p in parameters:   
             key = str(p['Name'])[len(self._path):] 
             value=str(p['Value'])        
             self._params[key]=value
-        
-        return self._params
-    
+
     def __getitem__(self, name):
         return self._params.get(name)
 
@@ -29,4 +40,4 @@ class SSMParameterStore(object):
         raise NotImplementedError()
     
     def __delitem__(self, name):
-        raise NotImplementedError()
+        raise NotImplementedError

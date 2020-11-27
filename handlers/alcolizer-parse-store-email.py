@@ -93,13 +93,13 @@ def splitEmail(content):
             data['resultRange']=itm["raw"]
             data['resultRangeText']=itm["ui_text"]            
         if itm['id'] == '9': 
-            data['resultDisplayed']=itm["raw"]
+            data['resultDisplayed']=Decimal(itm["raw"])
             data['resultDisplayedText']=itm["ui_text"]
         if itm['id'] == '55': 
             data['resultAlcohol']=itm["raw"]
             data['resultAlcoholText']=itm["ui_text"]
         if itm['id'] == '56': 
-            data['result']=itm["raw"]
+            data['result']=Decimal(itm["raw"])
             data['resultText']=itm["ui_text"]
     
     for img in photos: 

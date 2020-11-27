@@ -23,6 +23,6 @@ def lambda_handler(event, context):
     alcohol = event[EVENT][ALCOLIZER_RESULT][ALCOHOL]
 
     return {
-        'manager': 'ibunney@fmgl.com.au',
-        'alcohol' : alcohol
+        'manager': '<feature not yet implemented>',
+        'alcohol' : alcohol 
     }

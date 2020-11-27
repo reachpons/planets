@@ -1,4 +1,4 @@
-]import boto3 as bto
+import boto3 as bto
 import json
 import logging
 from urllib.parse import unquote

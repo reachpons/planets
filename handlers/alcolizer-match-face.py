@@ -14,8 +14,9 @@ def establish_logger():
     return logr
 
 def search(bucket,imageKey,collectionId,logger):
-    threshold = 85
-    maxFaces=5
+    
+    threshold = int(store['rekognition/threshold'])
+    maxFaces=int(store['rekognition/maxfaces'])
 
     try:
         
@@ -119,7 +120,7 @@ def lambda_handler(event,context):
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
     
-    collectionId = store['collection-id']
+    collectionId = store['rekognition/collection-id']
     bucket = store['s3/bucket']
     
     eventid=event['event-id']
