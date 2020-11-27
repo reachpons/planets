@@ -55,16 +55,34 @@ Resources:
       Description: The ARN for the Step Function that orhestrates parsing the email.
       Tier: Standard
       Type: String
-      Value: arn:aws:states:ap-southeast-2:281391661042:stateMachine:Alcolizer-Rekognizer-Email-Statemachine
+      Value: arn:aws:states:ap-southeast-2:317510107845:stateMachine:Alcolizer-Rekognizer-Email-Statemachine-dev
   DevApplicationRekognitionCollectionIdParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: /alcolizer-rekognition/dev/collection-id
+      Name: /alcolizer-rekognition/dev/rekognition/collection-id
       DataType: text
-      Description: The ARN for the Step Function that orhestrates parsing the email.
+      Description: The id of the Rekognition face collection.
       Tier: Standard
       Type: String
       Value: uat-rekognition-collection
+  DevApplicationRekognitionCollectionThresholdParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/rekognition/threshold
+      DataType: text
+      Description: The similalrity threshold for which matched faces are returned.
+      Tier: Standard
+      Type: String
+      Value: 90
+  DevApplicationRekognitionCollectionMaxFacesParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/rekognition/maxfaces
+      DataType: text
+      Description: The maximum number of faces returned by the search_faces_by_image rekognition API .
+      Tier: Standard
+      Type: String
+      Value: 5
   DevApplicationS3OutputKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
