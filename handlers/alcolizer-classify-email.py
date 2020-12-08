@@ -27,6 +27,7 @@ IS_BREATH='isBreathTest'
 IS_STATUS='isStatusReport'
 IS_LOG='isLogReport'
 IS_UNKOWN='isUnkown'
+IS_NULL='isNullAttachment'
 
 STATUS='statusCode'
 CATEGORY='category'
@@ -36,8 +37,9 @@ def loadAttachment(s3bucket,s3key):
     s3 = bto.resource('s3')
     
     unkey = unquote(s3key)
-    obj = s3.Object(s3bucket, unkey)
     
+    obj = s3.Object(s3bucket, unkey)
+
     body = obj.get()['Body'].read()
     return json.loads(body)
 
@@ -139,12 +141,12 @@ def lambda_handler(event, context):
     bucket = event[EMAIL][ BUCKET ]
     key = event[EMAIL][KEY]
     
-    # Evaluate  the type of email from the content  
-    # to be completed at a later date
-
-    content=loadAttachment(bucket,key)
-
-    category,reportType= parseAttachment(content)
+    
+    if key is not None:
+        content=loadAttachment(bucket,key)
+        category,reportType= parseAttachment(content)
+    else:
+        category,reportType=IS_NULL,'No Attachment'
 
     return {
             STATUS: 200,
