@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  The is to deploy the two dynamodb tables used by the Alcolizer-rekcognition app.  
+Parameters: 
+  AlcolizerBucket:
+    Type: String
+    Default: dev-alcolizer-rekognition 
+    Description: The name of the S3 bucket to store the Alcolizer files.
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.    
+  HierarchyKey:
+    Type: String
+    Default: dev
+    Description: This is the environment that will determine the SSMParamaters - dev/test/production
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.    
+Resources:   
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      ApiKeySourceType: HEADER
+      Description: A Private API Gateway for the Alcolizer-rekognition app      
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: alcolizer-rekognition
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt 
+        - ApiGatewayRestApi
+        - RootResourceId
+      PathPart: 'event'
+      RestApiId: !Ref ApiGatewayRestApi
+  ApiGatewayEventResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !Ref ApiGatewayResource 
+      PathPart: '{event}'
+      RestApiId: !Ref ApiGatewayRestApi
+  ApiGatewayMethod: 
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        ConnectionType: INTERNET 
+        Credentials: !GetAtt 
+          - ApiGatewayIamRole
+          - Arn
+        IntegrationHttpMethod: POST
+        PassthroughBehavior: WHEN_NO_MATCH
+        TimeoutInMillis: 29000
+        Type: AWS_PROXY
+        Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AlcolizerGetPhotoURLFunctionHndlr.Arn}/invocations'
+      OperationName: 'GetImageUrls'
+      ResourceId: !Ref ApiGatewayEventResource
+      RestApiId: !Ref ApiGatewayRestApi  
+  AlcolizerGetPhotoURLFunctionHndlr:
+    Type: AWS::Lambda::Function
+    Properties:      
+      FunctionName : !Join ['', ['alcolizer-get-photo-signedUrl', '-', !Ref 'HierarchyKey']]
+      Handler: alcolizer-get-photo-signedUrl.lambda_handler
+      Role: !GetAtt
+        - LambdaExecutionRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-get-photo-signedUrl.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300
+  ApiGatewayIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: 'Allow'
+            Principal:
+              Service:
+                - 'apigateway.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: '/'
+      Policies:
+        - PolicyName: LambdaAccess
+          PolicyDocument:
+            Version: 2012-10-17           
+            Statement:
+              - Effect: 'Allow'
+                Action: 'lambda:invokeFunction'
+                Resource: !GetAtt
+                  - AlcolizerGetPhotoURLFunctionHndlr
+                  - Arn   
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId: !Ref ApiGatewayDeployment
+      Description: !Join ['', ['Lambda API Stage', ' - ', !Ref 'HierarchyKey']]      
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: 'LATEST'
+  ApiGatewayModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: 'application/json'
+      RestApiId: !Ref ApiGatewayRestApi
+      Schema: {}
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:      
+      RestApiId: !Ref ApiGatewayRestApi  
+      StageName: "v0"
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'    
+    Properties:
+      RoleName: alcolizer-rekognition-apigateway-lambda-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess'
+      Policies:
+        - PolicyName: AlcolizerAccessS3BucketA
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement: 
+              - Effect: Allow
+                Action: 
+                  - 's3:GetObject'
+                Resource: !Join ['', ['arn:aws:s3:::', !Ref 'AlcolizerBucket', '/*']]                    
+              - Effect: Allow
+                Action: 
+                  - 'ssm:GetParameter'
+                  - 'ssm:GetParameters'
+                  - 'ssm:GetParametersByPath'
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                      

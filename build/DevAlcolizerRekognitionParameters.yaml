@@ -128,3 +128,12 @@ Resources:
       Tier: Standard
       Type: String
       Value: https://uatgal01.fmguat.local:8904  
+  DevNotificationHTMLTemplateParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/s3/email/html-template 
+      DataType: text
+      Description: The HTML template for a positive results notification.                
+      Tier: Standard
+      Type: String
+      Value: config/positive-result-notification-template.html

@@ -13,10 +13,18 @@ def lambda_handler(event, context):
     global logger
     logger=establish_logger()
 
-    
-    # Evaluate  the type of email from the content  
-    # to be completed at a later date
+    hierarchy = os.environ['hierarchy']
+    global store
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
+
+
+    #
+    # Insert API call to send email here
+    # Fan out ? push onto SNS Topic ?
+    # 
 
     return {
-        'status': 'report'
+        'manager': '<feature not yet implemented>',
+        'alcohol' : alcohol 
     }
+
