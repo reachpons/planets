@@ -15,6 +15,14 @@ def establish_logger():
     logr.setLevel(logging.INFO)
     return logr
 
+def parseIdentification(dict):
+    data={}
+    if dict is None: return None
+
+    data['serialNo']=dict.get('serial')['value']
+    data['software']=dict.get('software')['value']
+    data['assembly']=dict.get('assembly')['value']
+    return data
 
 def loadAttachment(s3bucket,s3key):
     s3 = bto.resource('s3')
@@ -25,9 +33,11 @@ def loadAttachment(s3bucket,s3key):
     body = obj.get()['Body'].read()
     return json.loads(body)
 
-def buildStatusReport(raw):
+def buildStatusReport(raw,machine):
     if raw is None: return None
 
+    dateStr= datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]    
+    
     groups=raw.get('groups')
     sets=raw.get('set')
     rslts=[]
@@ -43,6 +53,8 @@ def buildStatusReport(raw):
         rslts.append(rs)
  
     return {
+        'date' : dateStr,
+        'alcolizer' : machine,
         'sets' : rslts 
     }
 
@@ -80,12 +92,15 @@ def lambda_handler(event, context):
     key = event['email']['key']
 
     raw =loadAttachment(bucket,key)
-    content= buildStatusReport(raw) 
+    machine=parseIdentification(raw.get('identification'))
 
+    content= buildStatusReport(raw,machine) 
+  
     output= json.dumps(content,indent=4) 
     storeStatusLogToS3(output)
 
     return {
         'sucesss': 200,
+        'alcolizer' : machine,
         'messages' : content
     }
