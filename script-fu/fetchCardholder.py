@@ -56,6 +56,12 @@ def main():
     #with open('cardholders.json', 'w') as f:
     #    json.dump(full_db, f, indent=4)
 
+    # Get Rekognition Co0llection
+
+    # Diff Rek0ognition & Gallagher 
+
+    # Only updfate diff 
+
     print("Start adding to collection")
     putNewHires(gallagher,full_db)
 
