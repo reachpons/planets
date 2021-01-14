@@ -14,17 +14,14 @@ class SSMParameterStore(object):
         self.getParametersByPath()
     
     def getParametersByPath(self):        
-        response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption)
-        parameters = response[PARAMETERS]  
-        self.extract(parameters)
-        nextToken=response.get('NextToken')        
-        while nextToken:
-            response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption, NextToken=nextToken)
-            nextToken=response.get('NextToken')
+        response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption)        
+        while response:            
             parameters = response[PARAMETERS]  
             self.extract(parameters)
-            
-        
+            if 'NextToken' not in response: break    
+            nextToken=response.get('NextToken') 
+            response = self._client.get_parameters_by_path(Path=self._path, Recursive=True, MaxResults=self._max, WithDecryption=self._encryption, NextToken=nextToken)            
+
         return self._params
     
     def extract(self,parameters):
