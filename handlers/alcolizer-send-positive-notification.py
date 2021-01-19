@@ -96,8 +96,9 @@ def lambda_handler(event, context):
     recipients=rule.evaluate(employeeData)
 
     # add 'SecondaryBreathTestLocation, 'ContactPhone' from connfig to email data
-    emailData['secondaryLocation']=rule.secondaryLocation
-    emailData['contact']=rule.contact    
+    emailData['secondaryLocation']=rule.secondaryLocation()
+    emailData['contact']=rule.contact()
+        
 
     body=createHtmlEmail(emailData)
     send(body,recipients)
