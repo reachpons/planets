@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 import os
 from ssm_parameter_store import SSMParameterStore
+from locations import Location
 from urllib.parse import unquote
 from decimal import Decimal
 
@@ -31,7 +32,11 @@ def parseIdentification(dict,data):
     data['software']=dict.get('software')['value']
     data['assembly']=dict.get('assembly')['value']
 
-      
+    location= Location(store)
+    results=location[int(data['serialNo'])]
+    data['location'],data['site']= location.parse(results)
+
+
 def storeToDynamoDB(row):
     dynamoDBTable = store['dynamoDB/breathalyzer-result-table']
     dynamoDBRegion = store['dynamoDB/region']

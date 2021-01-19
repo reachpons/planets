@@ -1,10 +1,13 @@
 import json
 import logging
 import os
-from string import Template 
-from html_templater import Templater
 from ssm_parameter_store import SSMParameterStore
-
+from smtp_email_sender import STMPEmail
+from html_templater import Templater
+from employee_detail import EmployeeDetail
+from datetime import datetime
+from dateutil.parser import parse
+from notification_rule import NotificationRule
 
 EVENT='event'
 ALCOLIZER_RESULT='alcolizerResult'
@@ -15,52 +18,91 @@ def establish_logger():
     logr.setLevel(logging.INFO)
     return logr
 
+def fetchData(event): 
+
+    # extract Weighted SAPID
+    sapid=event['event']['weighted']['sapid']
+    
+    # fetch data from SucessFactors
+    employees=EmployeeDetail(APIEndpoint='Sucessfactors.fmgl.com.au')    
+    detail = employees.fetch(sapid)
+
+    # Create a Single data blob for HTML Combine
+
+    employee=detail['employee']
+    supervisor=detail['supervisor']
+    result=event['event']['alcolizerResult']
+    
+    dt=parse(result['alcolizerDateTime'])
+    prettyDate=datetime.strftime(dt,'%d %B %Y : %H:%M:%S')
+
+    data= {
+            'surname' : employee['surname'],
+            'givenNames' : employee['firstName'],
+            'shift' :'Day',
+            'department' : employee['department'],
+            'supervisorSurname' : supervisor['surname'],
+            'supervisorGivenNames' : supervisor['firstName'],
+            'datetime' : prettyDate,
+            'alcolizer' :result['serialNo'],
+            'displayedResult' : result['resultDisplayedText'],
+            'company' :' Fortescue Metals Group',
+            'site' : result['site'],
+            'location' : result['location']            
+        }
+
+    return data,detail,result['site']
+
+def createHtmlEmail(data):
+    s3bucket = store['s3/bucket']
+    htmltemplate=store['s3/email/html-template']
+
+    templater=Templater(Bucket=s3bucket,Template= htmltemplate )
+    body=templater.combine(data)
+    return body
+
+def send(body,recipients):
+    
+    noReply = 'ibunney@fmgl.com.au'
+    relay = store['email/smtp-server'] 
+
+    smtpServer = STMPEmail( STMPServer= relay)
+    smtpServer.set_subject('Alcolizer Rekognition Non-Negative Result!')
+    smtpServer.set_sender(noReply)
+    smtpServer.set_recipients(recipients)
+    smtpServer.set_altTest('This is an email from the Alcolizer Rekognition!')
+    
+    try:
+        smtpServer.send(body)  
+    except Exception as e:               
+        logger.exception("Could not send email.")
+        logger.exception(e) 
+
+
 def lambda_handler(event, context):
 
     global logger
     logger=establish_logger()
        
-   
-    # Evaluate  the type of email from the content  
-    # to be completed at a later date
-
-    alcohol = event[EVENT][ALCOLIZER_RESULT][ALCOHOL]
-
     hierarchy = os.environ['hierarchy']
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
+           
+    emailData,employeeData,site=fetchData(event)
+   
 
-    s3bucket = store['s3/bucket']
-    htmltemplate=store['s3/email/html-template']
+    # rule rules set of employeeData tyo determine recipient
+    rule = NotificationRule(store,site)
+    recipients=rule.evaluate(employeeData)
 
-    #
-    # Insert API Call to get Personel & Supervisor details Here
-    #
+    # add 'SecondaryBreathTestLocation, 'ContactPhone' from connfig to email data
+    emailData['secondaryLocation']=rule.secondaryLocation
+    emailData['contact']=rule.contact    
 
-    # Dummy data set
-    data= {
-            'surname' : 'Jackson',
-            'givenNames' :'Andrew Micheal',
-            'shift' :'Day',
-            'department' : 'TPI Rail',
-            'company' : 'Verve Group',
-            'supervisorSurname' :'Windsor', 
-            'supervisorGivenNames' :'Philip',
-            'datetime' : '8 August 2020:6:30 AM',
-            'alcolizer' :'33000695',
-            'displayedResult' : '0.005 g/100mL BAC'
-        }
-
-    templater=Templater(Bucket=s3bucket,Template= htmltemplate )
-    body=templater.combine(data)
-
-    #
-    # Insert API call to send email here
-    # Fan out ? push onto SNS Topic ?
-    # 
+    body=createHtmlEmail(emailData)
+    send(body,recipients)
 
     return {
-        'manager': '<feature not yet implemented>',
-        'alcohol' : alcohol 
+        'Recipient': recipients
     }
 
