@@ -29,6 +29,24 @@ Resources:
       Tier: Standard
       Type: String
       Value: alcolizer-dev-rekognition-results
+  DevApplicationAlcolizerLocationDBTableParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/dynamoDB/location
+      DataType: text
+      Description: The DynamoDB table for storeing the Alcolizer Location map
+      Tier: Standard
+      Type: String
+      Value: alcolizer-dev-alcolizer-location-map
+  DevApplicationAlcolizerLocationDefaultParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/location/default
+      DataType: text
+      Description: The default location value used for an unmapped serial No.
+      Tier: Standard
+      Type: String
+      Value: (Unknown):Unregistered
   DevApplicationS3BucketParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -137,3 +155,21 @@ Resources:
       Tier: Standard
       Type: String
       Value: config/positive-result-notification-template.html
+  DevSMTPServerParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/email/smtp-server
+      DataType: text
+      Description: The target SMTP Server for mail relay 
+      Tier: Standard
+      Type: String
+      Value: mailrelay.fmg.local
+  DevNotificationRuleConfigParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: /alcolizer-rekognition/dev/notifications/config
+      DataType: text
+      Description: The json configure used by the notification rules - updated separately
+      Tier: Standard
+      Type: String
+      Value: "{}"

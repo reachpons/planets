@@ -39,6 +39,20 @@ Resources:
       AttributeDefinitions: 
         - AttributeName: 'rowUid'
           AttributeType: 'S'
+  AlcolizerConfig: 
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: alcolizer-dev-alcolizer-location-map
+      BillingMode: 'PROVISIONED'
+      KeySchema: 
+          - AttributeName: 'serialNo'
+            KeyType: 'HASH'
+      ProvisionedThroughput: 
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5      
+      AttributeDefinitions: 
+        - AttributeName: 'serialNo'
+          AttributeType: 'N'
   ScalingRole: 
     Type: AWS::IAM::Role
     Properties: 
@@ -94,6 +108,17 @@ Resources:
           - Arn
         ScalableDimension: dynamodb:table:WriteCapacityUnits
         ServiceNamespace: dynamodb
+  TableWriteCapacityScalableTargetConfig:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties: 
+        MaxCapacity: !Ref MinCapacityUnits
+        MinCapacity: !Ref MinCapacityUnits
+        ResourceId: table/alcolizer-dev-alcolizer-location-map
+        RoleARN: !GetAtt 
+          - ScalingRole
+          - Arn
+        ScalableDimension: dynamodb:table:WriteCapacityUnits
+        ServiceNamespace: dynamodb
   TableWriteScalingPolicyBreathalyzer:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -112,6 +137,18 @@ Resources:
         PolicyName: TableWriteScalingPolicyAlcolizer
         PolicyType: TargetTrackingScaling
         ScalingTargetId: !Ref TableWriteCapacityScalableTargetAlcolyzer
+        TargetTrackingScalingPolicyConfiguration: 
+            TargetValue: 70
+            ScaleInCooldown: 60
+            ScaleOutCooldown: 60
+            PredefinedMetricSpecification: 
+                PredefinedMetricType: DynamoDBWriteCapacityUtilization
+  TableWriteScalingPolicyAlcolizer:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+        PolicyName: TableWriteScalingPolicyConfig
+        PolicyType: TargetTrackingScaling
+        ScalingTargetId: !Ref TableWriteCapacityScalableTargetConfig
         TargetTrackingScalingPolicyConfiguration: 
             TargetValue: 70
             ScaleInCooldown: 60
