@@ -1,0 +1,60 @@
+{
+	"Solomon" : { 
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },
+    "ChristmasCreek" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },
+    "Eliwana" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },    
+    "IronBridge" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },    
+    "PortRail" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },
+    "Cloudbreak" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",        
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    },
+    "Fortescue Centre" :
+    {
+        "SiteManager" :"ibunney@fmgl.com.au",
+        "EmergencyServicesDistributionList" :"ibunney@fmgl.com.au",
+        "ShudownDistributionList" : "ibunney@fmgl.com.au",        
+        "SecondaryBreathTestLocation" :"Level 1 Crib Stack B",
+        "ContactPhone" :"043 1234 5678"
+    },
+    "(Unknown)" : {
+        "SiteManager" :"",
+        "EmergencyServicesDistributionList" :"",
+        "ShudownDistributionList" :"",        
+        "SecondaryBreathTestLocation" :"",
+        "ContactPhone" :""
+    }
+}
+
