@@ -26,7 +26,7 @@ Resources:
       Description: The DynamoDB table for storeing the Alcolizer Readings.
       Tier: Standard
       Type: String
-      Value: alcolizer--breathalyzer-results
+      Value: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-breathalyzer-results']] 
   ApplicationRekognitionResultsDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -35,7 +35,7 @@ Resources:
       Description: The DynamoDB table for storeing the Rekognition results.
       Tier: Standard
       Type: String
-      Value: alcolizer--rekognition-results
+      Value: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-rekognition-results']]
   ApplicationAlcolizerLocationDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -44,7 +44,7 @@ Resources:
       Description: The DynamoDB table for storeing the Alcolizer Location map
       Tier: Standard
       Type: String
-      Value: alcolizer--alcolizer-location-map
+      Value: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-alcolizer-location-map']]
   ApplicationAlcolizerLocationDefaultParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -62,7 +62,7 @@ Resources:
       Description: The s3 bucket for the Alcolizer - Rekognition app.
       Tier: Standard
       Type: String
-      Value: -alcolizer-rekognition
+      Value: !Join ['', [!Ref HierarchyKey, '-alcolizer-rekognition']]
   ApplicationS3FacesKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -80,7 +80,7 @@ Resources:
       Description: The ARN for the Step Function that orhestrates parsing the email.
       Tier: Standard
       Type: String
-      Value: arn:aws:states:ap-southeast-2:317510107845:stateMachine:Alcolizer-Rekognizer-Email-Statemachine-
+      Value: !Join ['', ['arn:aws:states:ap-southeast-2:317510107845:stateMachine:Alcolizer-Rekognizer-Email-Statemachine-', !Ref HierarchyKey]]
   ApplicationRekognitionCollectionIdParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -156,16 +156,16 @@ Resources:
   NotificationHTMLTemplateParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition//s3/email/html-template']]
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/email/html-template']]
       DataType: text
       Description: The HTML template for a positive results notification.                
       Tier: Standard
       Type: String
       Value: config/positive-result-notification-template.html
-  SMTPServerParameter:
+  ServerSMTPParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition//email/smtp-server']]
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/email/smtp-server']]
       DataType: text
       Description: The target SMTP Server for mail relay 
       Tier: Standard
