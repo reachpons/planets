@@ -16,7 +16,7 @@ def lambda_handler(event, context):
 
     hierarchy = os.environ['hierarchy']
     global store
-    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
+    #store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
 
 
     #
@@ -25,7 +25,6 @@ def lambda_handler(event, context):
     # 
 
     return {
-        'manager': '<feature not yet implemented>',
-        'alcohol' : alcohol 
+        'manager': '<feature not yet implemented>'
     }
 

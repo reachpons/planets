@@ -132,8 +132,10 @@ def logReport(dict):
     }
     return report
 
-def isAlcolizerBlocked(content):
+def isAlcolizerBlocked(content,category):
     
+    if category != IS_BREATH: return False
+
     records=(content['records'])
     idData=parseIdentification(content.get('identification'))
     
@@ -175,7 +177,7 @@ def lambda_handler(event, context):
     else:
         category,reportType=IS_NULL,'No Attachment'
 
-    blocked= isAlcolizerBlocked(content)
+    blocked = isAlcolizerBlocked(content,category)
 
     return {
             STATUS: 200,
