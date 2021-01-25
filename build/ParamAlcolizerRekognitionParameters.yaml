@@ -5,11 +5,11 @@ Parameters:
   HierarchyKey:
     Type: String
     Default: dev
-    Description: This is the environment that will determine the SSMParamaters - dev/test/production
+    Description: This is the environment that will determine the SSMParamaters - /test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.   
 Resources:
-  DevApplicationRegionParameter:
+  ApplicationRegionParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/dynamoDB/region']] 
@@ -18,7 +18,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: ap-southeast-2
-  DevApplicationAlcolizerResultsDBTableParameter:
+  ApplicationAlcolizerResultsDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/dynamoDB/breathalyzer-result-table']] 
@@ -26,8 +26,8 @@ Resources:
       Description: The DynamoDB table for storeing the Alcolizer Readings.
       Tier: Standard
       Type: String
-      Value: alcolizer-dev-breathalyzer-results
-  DevApplicationRekognitionResultsDBTableParameter:
+      Value: alcolizer--breathalyzer-results
+  ApplicationRekognitionResultsDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/dynamoDB/rekognition-result']]
@@ -35,8 +35,8 @@ Resources:
       Description: The DynamoDB table for storeing the Rekognition results.
       Tier: Standard
       Type: String
-      Value: alcolizer-dev-rekognition-results
-  DevApplicationAlcolizerLocationDBTableParameter:
+      Value: alcolizer--rekognition-results
+  ApplicationAlcolizerLocationDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/dynamoDB/location']]
@@ -44,8 +44,8 @@ Resources:
       Description: The DynamoDB table for storeing the Alcolizer Location map
       Tier: Standard
       Type: String
-      Value: alcolizer-dev-alcolizer-location-map
-  DevApplicationAlcolizerLocationDefaultParameter:
+      Value: alcolizer--alcolizer-location-map
+  ApplicationAlcolizerLocationDefaultParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/location/default']]
@@ -54,7 +54,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: (Unknown):Unregistered
-  DevApplicationS3BucketParameter:
+  ApplicationS3BucketParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/bucket']]
@@ -62,8 +62,8 @@ Resources:
       Description: The s3 bucket for the Alcolizer - Rekognition app.
       Tier: Standard
       Type: String
-      Value: dev-alcolizer-rekognition
-  DevApplicationS3FacesKeyParameter:
+      Value: -alcolizer-rekognition
+  ApplicationS3FacesKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/facesKey']]
@@ -72,7 +72,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: faces/
-  DevApplicationStepFunctionParameter:
+  ApplicationStepFunctionParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/step-function']]
@@ -80,8 +80,8 @@ Resources:
       Description: The ARN for the Step Function that orhestrates parsing the email.
       Tier: Standard
       Type: String
-      Value: arn:aws:states:ap-southeast-2:317510107845:stateMachine:Alcolizer-Rekognizer-Email-Statemachine-dev
-  DevApplicationRekognitionCollectionIdParameter:
+      Value: arn:aws:states:ap-southeast-2:317510107845:stateMachine:Alcolizer-Rekognizer-Email-Statemachine-
+  ApplicationRekognitionCollectionIdParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/rekognition/collection-id']]
@@ -90,7 +90,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: uat-rekognition-collection
-  DevApplicationRekognitionCollectionThresholdParameter:
+  ApplicationRekognitionCollectionThresholdParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/rekognition/threshold']]
@@ -99,7 +99,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: 90
-  DevApplicationRekognitionCollectionMaxFacesParameter:
+  ApplicationRekognitionCollectionMaxFacesParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/rekognition/maxfaces']]
@@ -108,7 +108,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: 5
-  DevApplicationS3OutputKeyParameter:
+  ApplicationS3OutputKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/outputKey']]
@@ -117,7 +117,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: output/
-  DevApplicationS3AttachmentKeyParameter:
+  ApplicationS3AttachmentKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/attachmentKey']]
@@ -126,7 +126,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: attachments/
-  DevApplicationS3StatusLogKeyParameter:
+  ApplicationS3StatusLogKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/statusLogKey']]
@@ -135,7 +135,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: status/
-  DevGallagherAuthorizationKeyParameter:
+  GallagherAuthorizationKeyParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/gallagher/authorizationKey']]
@@ -144,7 +144,7 @@ Resources:
       Tier: Standard
       Type: String
       Value: GGL-API-KEY 17D5-F104-F506-1D37-72AC-B5E6-ACFC-87A2  
-  DevGallagherAPIUrlParameter:
+  GallagherAPIUrlParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/gallagher/API-url']]
@@ -153,25 +153,25 @@ Resources:
       Tier: Standard
       Type: String
       Value: https://uatgal01.fmguat.local:8904  
-  DevNotificationHTMLTemplateParameter:
+  NotificationHTMLTemplateParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition/dev/s3/email/html-template']]
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition//s3/email/html-template']]
       DataType: text
       Description: The HTML template for a positive results notification.                
       Tier: Standard
       Type: String
       Value: config/positive-result-notification-template.html
-  DevSMTPServerParameter:
+  SMTPServerParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition/dev/email/smtp-server']]
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/alcolizer-rekognition//email/smtp-server']]
       DataType: text
       Description: The target SMTP Server for mail relay 
       Tier: Standard
       Type: String
       Value: mailrelay.fmg.local
-  DevNotificationRuleConfigParameter:
+  NotificationRuleConfigParameter:
     Type: AWS::SSM::Parameter
     Properties: 
       Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/notifications/config']]
