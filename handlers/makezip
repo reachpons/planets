@@ -1,0 +1,63 @@
+
+cd handlers ;
+zip alcolizer-start-stepfunction.zip alcolizer-start-stepfunction.py ;  
+zip -g alcolizer-start-stepfunction.zip ssm_parameter_store.py; 
+mv alcolizer-start-stepfunction.zip ../zip/alcolizer-start-stepfunction.zip
+#
+zip alcolizer-classify-email.zip alcolizer-classify-email.py ;  
+zip -g alcolizer-classify-email.zip locations.py;
+zip -g alcolizer-classify-email.zip ssm_parameter_store.py; 
+mv alcolizer-classify-email.zip ../zip/alcolizer-classify-email.zip
+#
+zip alcolizer-ignore-email.zip alcolizer-ignore-email.py ;  
+mv alcolizer-ignore-email.zip ../zip/alcolizer-ignore-email.zip
+#
+zip alcolizer-match-face.zip alcolizer-match-face.py ;  
+zip -g alcolizer-match-face.zip ssm_parameter_store.py; 
+mv alcolizer-match-face.zip ../zip/alcolizer-match-face.zip
+#
+zip alcolizer-store-output-s3.zip alcolizer-store-output-s3.py ;  
+zip -g alcolizer-store-output-s3.zip ssm_parameter_store.py; 
+mv alcolizer-store-output-s3.zip ../zip/alcolizer-store-output-s3.zip
+#
+zip alcolizer-weight-rekognition.zip alcolizer-weight-rekognition.py ;  
+zip -g alcolizer-weight-rekognition.zip ssm_parameter_store.py; 
+mv alcolizer-weight-rekognition.zip ../zip/alcolizer-weight-rekognition.zip
+#
+zip alcolizer-parse-store-email.zip alcolizer-parse-store-email.py ;  
+zip -g alcolizer-parse-store-email.zip ssm_parameter_store.py; 
+zip -g alcolizer-parse-store-email.zip locations.py; 
+mv alcolizer-parse-store-email.zip ../zip/alcolizer-parse-store-email.zip
+# 
+zip alcolizer-store-status-log.zip alcolizer-store-status-log.py ;  
+zip -g alcolizer-store-status-log.zip ssm_parameter_store.py; 
+mv alcolizer-store-status-log.zip ../zip/alcolizer-store-status-log.zip
+#
+zip alcolizer-send-status-notification.zip alcolizer-send-status-notification.py ;  
+zip -g alcolizer-send-status-notification.zip ssm_parameter_store.py; 
+mv alcolizer-send-status-notification.zip ../zip/alcolizer-send-status-notification.zip
+#
+zip alcolizer-send-positive-notification.zip alcolizer-send-positive-notification.py ;  
+zip -g alcolizer-send-positive-notification.zip ssm_parameter_store.py; 
+zip -g alcolizer-send-positive-notification.zip html_templater.py;
+zip -g alcolizer-send-positive-notification.zip employee_detail.py;
+zip -g alcolizer-send-positive-notification.zip smtp_email_sender.py;
+zip -g alcolizer-send-positive-notification.zip notification_rule.py;
+zip -g alcolizer-send-positive-notification.zip notification_config.py;
+zip -g alcolizer-send-positive-notification.zip locations.py;
+mv alcolizer-send-positive-notification.zip ../zip/alcolizer-send-positive-notification.zip
+#
+zip alcolizer-extract-email-attachment.zip alcolizer-extract-email-attachment.py ;  
+zip -g alcolizer-extract-email-attachment.zip ssm_parameter_store.py; 
+mv alcolizer-extract-email-attachment.zip ../zip/alcolizer-extract-email-attachment.zip
+#
+zip alcolizer-get-photo-signedUrl.zip alcolizer-get-photo-signedUrl.py ;  
+zip -g alcolizer-get-photo-signedUrl.zip ssm_parameter_store.py; 
+mv alcolizer-get-photo-signedUrl.zip ../zip/alcolizer-get-photo-signedUrl.zip
+
+
+
+
+
+
+

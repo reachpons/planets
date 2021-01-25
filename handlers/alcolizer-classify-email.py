@@ -1,7 +1,10 @@
 import boto3 as bto
 import json
 import logging
+import os
 from urllib.parse import unquote
+from locations import Location
+from ssm_parameter_store import SSMParameterStore
 
 # The Alcolizer sends 3 different email attachments  (in JSON format)
 # Status = usually and Alcolizer notification like liquid detected , service required
@@ -32,6 +35,7 @@ IS_NULL='isNullAttachment'
 STATUS='statusCode'
 CATEGORY='category'
 NOTE='note'
+IS_BLOCKED='isBlocked'
 
 def loadAttachment(s3bucket,s3key):
     s3 = bto.resource('s3')
@@ -73,6 +77,16 @@ def isResult(dict):
 def unrecognisedIgnore(dict):
 
     return false
+
+def parseIdentification(dict):
+
+    data={}
+    if dict is None: return
+    data['serialNo']=dict.get('serial')['value']
+    data['software']=dict.get('software')['value']
+    data['assembly']=dict.get('assembly')['value']
+
+    return data
 
 def statusReport(dict):
     if dict is None: return None
@@ -118,10 +132,19 @@ def logReport(dict):
     }
     return report
 
+def isAlcolizerBlocked(content):
+    
+    records=(content['records'])
+    idData=parseIdentification(content.get('identification'))
+    
+    location= Location(store)
+    results=location[int(idData['serialNo'])]
+
+    return location.isBlocked(results)
 
 def parseAttachment(attachment):
           
-    if isResult(attachment):         
+    if isResult(attachment):              
         category,reportType=IS_BREATH,"Breathalyser Report"
     elif isStatus(attachment):
         category,reportType=IS_STATUS,"Status Report"
@@ -137,6 +160,10 @@ def lambda_handler(event, context):
 
     global logger
     logger=establish_logger()
+        
+    hierarchy = os.environ['hierarchy']
+    global store
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
        
     bucket = event[EMAIL][ BUCKET ]
     key = event[EMAIL][KEY]
@@ -148,10 +175,13 @@ def lambda_handler(event, context):
     else:
         category,reportType=IS_NULL,'No Attachment'
 
+    blocked= isAlcolizerBlocked(content)
+
     return {
             STATUS: 200,
             CATEGORY: category, 
-            NOTE  : reportType,         
+            NOTE  : reportType,
+            IS_BLOCKED : blocked,         
             EMAIL : {
                     BUCKET : bucket,
                     KEY : key

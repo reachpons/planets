@@ -34,3 +34,10 @@ class Location(object):
             return  results['location'], results['site']                    
 
         return self._default.split(':')[1], self._default.split(':')[0]
+
+    def isBlocked(self,results):
+    
+        if (results):
+            return  results['isBlocked']
+
+        return False

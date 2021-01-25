@@ -42,12 +42,13 @@ def buildStatusReport(raw,machine):
     sets=raw.get('set')
     rslts=[]
     for st in sets:        
-        grp=st['group']
+        grp=st['group']        
         group=groups[grp]
         rs={
             'title' : group['ui_title'],
             'group' : group['ui_description'],            
-            'status' : st['ui_description'],
+            'status' : st['ui_title'],
+            'id'  : st['id'],
             'status decription' : st['ui_description']
         }
         rslts.append(rs)

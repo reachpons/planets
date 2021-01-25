@@ -1,6 +1,7 @@
 import boto3 as bto
 import json
 import logging
+import os
 
 def establish_logger():
     logr = logging.getLogger()
