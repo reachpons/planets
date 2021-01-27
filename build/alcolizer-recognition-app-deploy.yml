@@ -32,13 +32,24 @@ Resources:
         Variables:
           hierarchy: !Ref 'HierarchyKey'
       Timeout: 300
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: 
+        Ref: "AlcolizerStartStepFunctionHndlr"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: 
+        Fn::GetAtt: 
+          - "S3LambdaEventBridgeRule"
+          - "Arn"
   AlcolizerClassifyEmailHndlr:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Join ['', ['alcolizer-classify-email', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-classify-email.lambda_handler
       Role: !GetAtt
-        - S3ReadRole
+        - LambdaS3AccessLambdaPutRole
         - Arn
       Code:
         S3Bucket: !Ref AlcolizerBucket
@@ -66,6 +77,7 @@ Resources:
       Timeout: 300
   AlcolizerParseStoreEmailHndlr:
     Type: AWS::Lambda::Function
+    Description: This is the function that parses and stores the email int the database and the images on s3.
     Properties:
       FunctionName: !Join ['', ['alcolizer-parse-store-email', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-parse-store-email.lambda_handler
@@ -166,7 +178,7 @@ Resources:
       FunctionName: !Join ['', ['alcolizer-send-positive-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-positive-notification.lambda_handler
       Role: !GetAtt
-        - BasicRole
+        - S3ReadRole
         - Arn
       Code:
         S3Bucket: !Ref AlcolizerBucket 
