@@ -153,15 +153,24 @@ Resources:
       Tier: Standard
       Type: String
       Value: https://uatgal01.fmguat.local:8904  
-  NotificationHTMLTemplateParameter:
+  PositiveNotificationHTMLTemplateParameter:
     Type: AWS::SSM::Parameter
     Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/email/html-template']]
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/email/breathresult-html-template']]
       DataType: text
       Description: The HTML template for a positive results notification.                
       Tier: Standard
       Type: String
       Value: config/positive-result-notification-template.html
+  StatusNotificationHTMLTemplateParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/email/status-html-template']]
+      DataType: text
+      Description: The HTML template for a positive results notification.                
+      Tier: Standard
+      Type: String
+      Value: config/status-notification-template.html
   ServerSMTPParameter:
     Type: AWS::SSM::Parameter
     Properties: 

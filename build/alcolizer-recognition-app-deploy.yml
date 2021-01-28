@@ -31,18 +31,7 @@ Resources:
       Environment:
         Variables:
           hierarchy: !Ref 'HierarchyKey'
-      Timeout: 300
-  PermissionForEventsToInvokeLambda: 
-    Type: AWS::Lambda::Permission
-    Properties: 
-      FunctionName: 
-        Ref: "AlcolizerStartStepFunctionHndlr"
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
-      SourceArn: 
-        Fn::GetAtt: 
-          - "S3LambdaEventBridgeRule"
-          - "Arn"
+      Timeout: 300  
   AlcolizerClassifyEmailHndlr:
     Type: AWS::Lambda::Function
     Properties:
@@ -162,7 +151,7 @@ Resources:
       FunctionName: !Join ['', ['alcolizer-send-status-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-status-notification.lambda_handler
       Role: !GetAtt
-        - BasicRole
+        - LambdaS3AccessLambdaPutRole
         - Arn
       Code:
         S3Bucket: !Ref AlcolizerBucket 
@@ -178,7 +167,7 @@ Resources:
       FunctionName: !Join ['', ['alcolizer-send-positive-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-positive-notification.lambda_handler
       Role: !GetAtt
-        - S3ReadRole
+        - LambdaS3AccessLambdaPutRole
         - Arn
       Code:
         S3Bucket: !Ref AlcolizerBucket 
@@ -435,4 +424,3 @@ Resources:
                   - 'ssm:GetParameters'
                   - 'ssm:GetParametersByPath'
                 Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*            
-  
