@@ -6,6 +6,8 @@ from ssm_parameter_store import SSMParameterStore
 from datetime import datetime
 import uuid
 from urllib.parse import unquote
+from locations import Location
+
 
 EVENT='event'
 ID='id'
@@ -19,9 +21,14 @@ def parseIdentification(dict):
     data={}
     if dict is None: return None
 
-    data['serialNo']=dict.get('serial')['value']
+    serialNo=dict.get('serial')['value']
+    data['serialNo']=serialNo
     data['software']=dict.get('software')['value']
     data['assembly']=dict.get('assembly')['value']
+
+    location= Location(store)
+    results=location[int(serialNo)]
+    data['location'],data['site']= location.parse(results)
     return data
 
 def loadAttachment(s3bucket,s3key):
@@ -77,6 +84,7 @@ def storeStatusLogToS3(output):
                                     Key=ix,
                                     Metadata = {'eventId': eventid },
                                     ContentType= 'application/json' )
+    return ix
     
 
 def lambda_handler(event, context):
@@ -98,10 +106,10 @@ def lambda_handler(event, context):
     content= buildStatusReport(raw,machine) 
   
     output= json.dumps(content,indent=4) 
-    storeStatusLogToS3(output)
+    ixKey=storeStatusLogToS3(output)
 
     return {
         'sucesss': 200,
-        'alcolizer' : machine,
+        'key' : ixKey,
         'messages' : content
     }

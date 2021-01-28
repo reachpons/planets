@@ -31,10 +31,15 @@ mv alcolizer-parse-store-email.zip ../zip/alcolizer-parse-store-email.zip
 # 
 zip alcolizer-store-status-log.zip alcolizer-store-status-log.py ;  
 zip -g alcolizer-store-status-log.zip ssm_parameter_store.py; 
+zip -g alcolizer-store-status-log.zip locations.py;
 mv alcolizer-store-status-log.zip ../zip/alcolizer-store-status-log.zip
 #
 zip alcolizer-send-status-notification.zip alcolizer-send-status-notification.py ;  
 zip -g alcolizer-send-status-notification.zip ssm_parameter_store.py; 
+zip -g alcolizer-send-status-notification.zip html_templater.py;
+zip -g alcolizer-send-status-notification.zip smtp_email_sender.py;
+zip -g alcolizer-send-status-notification.zip notification_config.py;
+zip -g alcolizer-send-status-notification.zip locations.py;
 mv alcolizer-send-status-notification.zip ../zip/alcolizer-send-status-notification.zip
 #
 zip alcolizer-send-positive-notification.zip alcolizer-send-positive-notification.py ;  

@@ -55,7 +55,7 @@ def fetchData(event):
 
 def createHtmlEmail(data):
     s3bucket = store['s3/bucket']
-    htmltemplate=store['s3/email/html-template']
+    htmltemplate=store['s3/email/breathresult-html-template']
 
     templater=Templater(Bucket=s3bucket,Template= htmltemplate )
     body=templater.combine(data)
@@ -77,6 +77,7 @@ def send(body,recipients):
     except Exception as e:               
         logger.exception("Could not send email.")
         logger.exception(e) 
+        raise
 
 
 def lambda_handler(event, context):
