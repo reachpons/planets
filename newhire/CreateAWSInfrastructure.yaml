@@ -151,8 +151,8 @@ Resources:
         Properties:
           Name: !Join [ "_", [ !Ref EnvName, "Daily-Refresh-facial-recognition" ]]
           Description: This job refresh the AWS Facial recognition collection every day          
-          ScheduleExpression: "rate(1 minute)"
-          State: DISABLED
+          ScheduleExpression: "cron(0 09 * * ? *)"
+          State: ENABLED
           Targets:
             - Arn: 
                 Ref: BatchProcessingJobQueue
