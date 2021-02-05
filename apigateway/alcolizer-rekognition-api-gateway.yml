@@ -1,7 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  The is to deploy the two dynamodb tables used by the Alcolizer-rekcognition app.  
-Parameters: 
+  The is to deploy the API Gateway & Lambda function to return the Signed URLs for the Alcolizer photos for each Event.
+Parameters:   
+  AlcolizerVPC:
+    Type: String
+    Default: vpc-0159fa80f47d2d416
+    Description: The name of VPC that the application 
+    MinLength: '1'
+    ConstraintDescription: This parameter is required    
   AlcolizerBucket:
     Type: String
     Default: dev-alcolizer-rekognition 
@@ -14,16 +20,49 @@ Parameters:
     Description: This is the environment that will determine the SSMParamaters - dev/test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.    
+  VPCAPIGatewayEndpoint:
+    Type: String
+    Default: vpce-0da92fa5bb14bfa0f
+    Description: >-
+      This is the VPC endpoint created using 'alcolizer-rekognition-vpc-endpoint.yaml'. 
+      Also Hard-coded in Policy vpc-0159fa80f47d2d416
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.           
 Resources:   
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
+      Name: alcolizer-rekognition
       ApiKeySourceType: HEADER
       Description: A Private API Gateway for the Alcolizer-rekognition app      
       EndpointConfiguration:
         Types:
-          - REGIONAL
-      Name: alcolizer-rekognition
+          - PRIVATE
+        VpcEndpointIds: 
+          - !Ref VPCAPIGatewayEndpoint
+      Policy: | 
+            {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Deny",
+                        "Principal": "*",
+                        "Action": "execute-api:Invoke",
+                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:*/v0/GET/event/*",
+                        "Condition": {
+                            "StringNotEquals": {
+                                "aws:sourceVpc": "vpc-0159fa80f47d2d416"
+                            }
+                        }
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": "execute-api:Invoke",
+                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:*/v0/GET/event/*"
+                    }
+                ]
+            }
   ApiGatewayResource:
     Type: AWS::ApiGateway::Resource
     Properties:
@@ -38,29 +77,58 @@ Resources:
       ParentId: !Ref ApiGatewayResource 
       PathPart: '{event}'
       RestApiId: !Ref ApiGatewayRestApi
-  ApiGatewayMethod: 
+  ApiGatewayMethodGET: 
     Type: AWS::ApiGateway::Method
     Properties:
       ApiKeyRequired: false
       AuthorizationType: NONE
-      HttpMethod: GET
+      HttpMethod: GET      
+      OperationName: 'GetImageUrls'
+      ResourceId: !Ref ApiGatewayEventResource
+      RestApiId: !Ref ApiGatewayRestApi  
       Integration:
         ConnectionType: INTERNET 
         Credentials: !GetAtt 
           - ApiGatewayIamRole
           - Arn
         IntegrationHttpMethod: POST
-        PassthroughBehavior: WHEN_NO_MATCH
+        PassthroughBehavior: WHEN_NO_TEMPLATES
         TimeoutInMillis: 29000
         Type: AWS_PROXY
         Uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AlcolizerGetPhotoURLFunctionHndlr.Arn}/invocations'
-      OperationName: 'GetImageUrls'
+        ContentHandling : CONVERT_TO_TEXT
+  ApiGatewayMethodOPTION: 
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS     
       ResourceId: !Ref ApiGatewayEventResource
       RestApiId: !Ref ApiGatewayRestApi  
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
   AlcolizerGetPhotoURLFunctionHndlr:
     Type: AWS::Lambda::Function
     Properties:      
-      FunctionName : !Join ['', ['alcolizer-get-photo-signedUrl', '-', !Ref 'HierarchyKey']]
+      FunctionName : !Join ['', ['alcolizer-get-photo-signedUrl', '-', !Ref HierarchyKey]]
       Handler: alcolizer-get-photo-signedUrl.lambda_handler
       Role: !GetAtt
         - LambdaExecutionRole
@@ -71,7 +139,7 @@ Resources:
       Runtime: python3.8
       Environment:
         Variables:
-          hierarchy: !Ref 'HierarchyKey'
+          hierarchy: !Ref HierarchyKey
       Timeout: 300
   ApiGatewayIamRole:
     Type: AWS::IAM::Role
@@ -101,7 +169,7 @@ Resources:
     Type: AWS::ApiGateway::Stage
     Properties:
       DeploymentId: !Ref ApiGatewayDeployment
-      Description: !Join ['', ['Lambda API Stage', ' - ', !Ref 'HierarchyKey']]      
+      Description: !Join ['', ['Lambda API Stage', ' - ', !Ref HierarchyKey ]]      
       RestApiId: !Ref ApiGatewayRestApi
       StageName: 'LATEST'
   ApiGatewayModel:
@@ -112,14 +180,14 @@ Resources:
       Schema: {}
   ApiGatewayDeployment:
     Type: AWS::ApiGateway::Deployment
-    DependsOn: ApiGatewayMethod
+    DependsOn: ApiGatewayMethodGET
     Properties:      
       RestApiId: !Ref ApiGatewayRestApi  
       StageName: "v0"
   LambdaExecutionRole:
     Type: 'AWS::IAM::Role'    
     Properties:
-      RoleName: alcolizer-rekognition-apigateway-lambda-role
+      RoleName: alcolizer-rekognition-apigateway-lambda-role-dev
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -147,3 +215,7 @@ Resources:
                   - 'ssm:GetParameters'
                   - 'ssm:GetParametersByPath'
                 Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                      
+Outputs:
+  RestAPI:
+    Description: The API Gatway ID
+    Value: !Ref ApiGatewayRestApi 
