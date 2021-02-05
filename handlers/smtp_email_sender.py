@@ -1,13 +1,13 @@
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import boto3 as bto
+from botocore.exceptions import ClientError
 
-SEPARATOR = ', '
+CHARSET = "UTF-8"
 
+# this class now uses the AWS SES API rather than an SMTP Server
 class STMPEmail(object):
 
-    def __init__(self, STMPServer):
-        self._server=STMPServer
+    def __init__(self, Region):
+        self._region=Region
         self._recipients=[]
         self._sender=None
         self._subject=None  
@@ -29,22 +29,40 @@ class STMPEmail(object):
 
         if self._sender is None or  self._subject is None or self._recipients.count == 0 :
             return 
-        
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = self._subject
-        msg['From'] = self._sender
 
-        to= SEPARATOR.join(self._recipients)
-        msg['To'] = to
+        client = bto.client('ses',region_name=self._region)
 
-        text = self._altText
-        part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(body, 'html')
+        try:   
+            response = client.send_email(
+                Destination={
+                    'ToAddresses': self._recipients
+                },
+                Message={
+                    'Body': {
+                        'Html': {
+                            'Charset': CHARSET,
+                            'Data': body,
+                        },
+                        'Text': {
+                            'Charset': CHARSET,
+                            'Data': self._altText,
+                        }
+                    },
+                    'Subject': {
+                        'Charset': CHARSET,
+                        'Data': self._subject,
+                    },
+                },
+                Source=self._sender
+            )
 
-        msg.attach(part1)
-        msg.attach(part2)
+        except ClientError as e:
+            return {
+                'statusCode' : 500 ,
+                'message' : e.response['Error']['Message']
+            }
 
-        s = smtplib.SMTP(self._server)
-        s.sendmail(self._sender, self._recipients, msg.as_string())       
-        s.quit()
-
+        return {
+            'statusCode' : 200,
+            'recipients': self._recipients 
+        }         

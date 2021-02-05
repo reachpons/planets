@@ -44,13 +44,22 @@ mv alcolizer-send-status-notification.zip ../zip/alcolizer-send-status-notificat
 #
 zip alcolizer-send-positive-notification.zip alcolizer-send-positive-notification.py ;  
 zip -g alcolizer-send-positive-notification.zip ssm_parameter_store.py; 
-zip -g alcolizer-send-positive-notification.zip html_templater.py;
-zip -g alcolizer-send-positive-notification.zip employee_detail.py;
-zip -g alcolizer-send-positive-notification.zip smtp_email_sender.py;
 zip -g alcolizer-send-positive-notification.zip notification_rule.py;
 zip -g alcolizer-send-positive-notification.zip notification_config.py;
+zip -g alcolizer-send-positive-notification.zip employee_detail.py;
 zip -g alcolizer-send-positive-notification.zip locations.py;
 mv alcolizer-send-positive-notification.zip ../zip/alcolizer-send-positive-notification.zip
+#
+zip alcolizer-send-positive-email.zip alcolizer-send-positive-email.py ;  
+zip -g alcolizer-send-positive-email.zip ssm_parameter_store.py; 
+zip -g alcolizer-send-positive-email.zip html_templater.py;
+zip -g alcolizer-send-positive-email.zip smtp_email_sender.py;
+mv alcolizer-send-positive-email.zip ../zip/alcolizer-send-positive-email.zip
+#
+zip alcolizer-send-positive-sms.zip alcolizer-send-positive-sms.py ;  
+zip -g alcolizer-send-positive-sms.zip ssm_parameter_store.py; 
+zip -g alcolizer-send-positive-sms.zip html_templater.py;
+mv alcolizer-send-positive-sms.zip ../zip/alcolizer-send-positive-sms.zip
 #
 zip alcolizer-extract-email-attachment.zip alcolizer-extract-email-attachment.py ;  
 zip -g alcolizer-extract-email-attachment.zip ssm_parameter_store.py; 

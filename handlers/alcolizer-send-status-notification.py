@@ -51,20 +51,15 @@ def createHtmlEmail(data):
 def send(body,recipients):
     
     noReply = 'ibunney@fmgl.com.au'
-    relay = store['email/smtp-server'] 
+    region  = store['dynamoDB/region'] 
 
-    smtpServer = STMPEmail( STMPServer= relay)
+    smtpServer = STMPEmail( Region=region)
     smtpServer.set_subject('Alcolizer Rekognition Non-Negative Result!')
     smtpServer.set_sender(noReply)
     smtpServer.set_recipients(recipients)
     smtpServer.set_altTest('This is an email from the Alcolizer Rekognition!')
     
-    try:
-        smtpServer.send(body)  
-    except Exception as e:               
-        logger.exception("Could not send email.")
-        logger.exception(e) 
-        raise
+    return smtpServer.send(body)  
 
 def lambda_handler(event, context):
    
@@ -79,16 +74,12 @@ def lambda_handler(event, context):
 
     site=data['site']
     config=NotificationConfig(store,site)  
-    mgr,emg,shut,second,contact=config.unpack()
-    recipients=[emg]
-    
-    data['contact']=contact
-        
-    body=createHtmlEmail(data)    
-    send(body,recipients)
 
-    return {
-        'Recipient': recipients
-    }
+    recipients=[config.EmergencyServices()['email']]   
+
+    body=createHtmlEmail(data)    
+    response = send(body,recipients)
+    logger.info('Email notification response [%s].', response)
+    return response
 
 

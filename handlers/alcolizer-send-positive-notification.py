@@ -1,9 +1,8 @@
 import json
 import logging
 import os
+import boto3 as bto
 from ssm_parameter_store import SSMParameterStore
-from smtp_email_sender import STMPEmail
-from html_templater import Templater
 from employee_detail import EmployeeDetail
 from datetime import datetime
 from dateutil.parser import parse
@@ -18,17 +17,22 @@ def establish_logger():
     logr.setLevel(logging.INFO)
     return logr
 
-def fetchData(event): 
-
-    # extract Weighted SAPID
-    sapid=event['event']['weighted']['sapid']
+def fetchEmployeeData(event):
     
     # fetch data from SucessFactors
+    sapid=event['event']['weighted']['sapid']
+    # TODO Check for confidence 
+
     employees=EmployeeDetail(APIEndpoint='Sucessfactors.fmgl.com.au')    
-    detail = employees.fetch(sapid)
+    return employees.fetch(sapid)
+
+def buildData(event): 
+
+    # extract Weighted SAPID
+       
+    detail=fetchEmployeeData(event)
 
     # Create a Single data blob for HTML Combine
-
     employee=detail['employee']
     supervisor=detail['supervisor']
     result=event['event']['alcolizerResult']
@@ -53,32 +57,20 @@ def fetchData(event):
 
     return data,detail,result['site']
 
-def createHtmlEmail(data):
-    s3bucket = store['s3/bucket']
-    htmltemplate=store['s3/email/breathresult-html-template']
 
-    templater=Templater(Bucket=s3bucket,Template= htmltemplate )
-    body=templater.combine(data)
-    return body
-
-def send(body,recipients):
+def sendSNS(msg):  
+    topic = store['sns/topic/notification']
+    region = store['dynamoDB/region'] # all artifacts in same region  
     
-    noReply = 'ibunney@fmgl.com.au'
-    relay = store['email/smtp-server'] 
+    message = json.dumps({'default': json.dumps(msg)})
+    sns = bto.client('sns',region_name=region)
 
-    smtpServer = STMPEmail( STMPServer= relay)
-    smtpServer.set_subject('Alcolizer Rekognition Non-Negative Result!')
-    smtpServer.set_sender(noReply)
-    smtpServer.set_recipients(recipients)
-    smtpServer.set_altTest('This is an email from the Alcolizer Rekognition!')
-    
-    try:
-        smtpServer.send(body)  
-    except Exception as e:               
-        logger.exception("Could not send email.")
-        logger.exception(e) 
-        raise
-
+    response = sns.publish(
+                    TopicArn = topic,
+                    Message = message,
+                    MessageStructure='json' )
+    code = response['ResponseMetadata']['HTTPStatusCode']    
+    return code
 
 def lambda_handler(event, context):
 
@@ -89,22 +81,30 @@ def lambda_handler(event, context):
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
            
-    emailData,employeeData,site=fetchData(event)
+    msgData,employeeData,site=buildData(event)
    
-
     # rule rules set of employeeData tyo determine recipient
     rule = NotificationRule(store,site)
-    recipients=rule.evaluate(employeeData)
+    emails,mobileNo=rule.evaluate(employeeData)
 
     # add 'SecondaryBreathTestLocation, 'ContactPhone' from connfig to email data
-    emailData['secondaryLocation']=rule.secondaryLocation()
-    emailData['contact']=rule.contact()
-        
+    msgData['secondaryLocation']=rule.SecondaryLocation()       
+    
+    recipients = {
+        'email' : emails ,
+        'mobile' : mobileNo       
+    }
+    
+    msgData['recipients']=recipients
+    
+    pout=json.dumps(msgData,indent=4 )
+    logger.info('SNS Message => Event[{}]'.format( pout  ))
 
-    body=createHtmlEmail(emailData)
-    send(body,recipients)
+    code=sendSNS(msgData)
 
     return {
+        'statusCode' : code,
         'Recipient': recipients
     }
+
 

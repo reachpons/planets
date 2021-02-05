@@ -17,7 +17,7 @@ class EmployeeDetail(object):
                 'surname' : 'Bunney',
                 'jobTitle' : 'Cloud Architect',
                 'businessEmail' :'ibunney@fmgl.com.au',
-                'mobile': '0439 983596',
+                'mobile': '0439983596',
                 'department' : 'Technology & Automation'
             },
             'supervisor' : {
@@ -26,7 +26,7 @@ class EmployeeDetail(object):
                 'firstName' :'Shelley',  
                 'jobTitle' : 'Project Manager',                                          
                 'businessEmail' :'shelewis@fmgl.com.au',
-                'mobile': '000 456789',            
+                'mobile': '0439983596',            
                 'department' : 'Technology & Automation'
             }
        }

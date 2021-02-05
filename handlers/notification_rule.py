@@ -5,10 +5,8 @@ from notification_config import NotificationConfig
 class NotificationRule(object):
 
     def __init__(self,store,site):
-        self._config=NotificationConfig(store,site)   
-        self._secondLocation=None
-        self._contact=None
-             
+        self._config=NotificationConfig(store,site)           
+                
 
     def evaluate(self,persons):
         
@@ -16,31 +14,29 @@ class NotificationRule(object):
         # shut = Site Emergency Srvice Distribution List
         # emg = Site Shutown Distribution List
 
-        mgr,emg,shut,second,contact=self._config.unpack()
-        self._secondLocation=second
-        self._contact=contact
+        
+        mgr=self._config.SiteManager()['email']
+        emg=self._config.EmergencyServices()['email']
+        shut=self._config.ShudownDistributionList()
+        second=self._config.SecondaryBreathTestLocation()
 
         # if shutdown in Position title
         person=persons['employee']
 
         jobTitle=person['jobTitle']
-        if self.isShutdown(jobTitle): return [shut,emg]
+        if self.isShutdown(jobTitle): return [shut,emg],self._config.EmergencyServices['mobile']
 
         # if on exclusion list 
-        if self.isOnExclusionList(jobTitle) :  return [mgr,emg]
+        if self.isOnExclusionList(jobTitle) :  return [mgr,emg],self._config.SiteManager['mobile']
 
         # will use supervisor emails
 
         supervisor=persons['supervisor']
-        return [supervisor['businessEmail'],emg]
-
-    def secondaryLocation(self):
-        return self._secondLocation
-    
-    def contact(self):
-        return self._contact
-        
-
+        return [supervisor['businessEmail'],emg],supervisor['mobile']
+   
+    def SecondaryLocation(self):
+        return self._config.SecondaryBreathTestLocation()
+           
     def isOnExclusionList(self,jobTitle):
         
         #TODO add as config   

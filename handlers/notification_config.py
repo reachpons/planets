@@ -10,14 +10,18 @@ class NotificationConfig(object):
     def getSiteConfig(self):
         result = self._store['notifications/config'] 
         config = json.loads(result)
-        siteConfig=config[self._site]
+        siteConfig=config[self._site]        
         return siteConfig
 
-    def unpack(self):
+    def SiteManager(self):        
+        return self._config['SiteManager']
+    
+    def EmergencyServices(self):
+        return self._config['EmergencyServices']
 
-        mgr=self._config['SiteManager']
-        emg=self._config['EmergencyServicesDistributionList']
-        shut=self._config['ShudownDistributionList']
-        second=self._config['SecondaryBreathTestLocation']
-        contact=self._config['ContactPhone']
-        return mgr,emg,shut,second,contact
+    def ShudownDistributionList(self):
+        return self._config['ShudownEmailDistributionList']
+
+    def SecondaryBreathTestLocation(self):
+        return self._config['SecondaryBreathTestLocation']
+
