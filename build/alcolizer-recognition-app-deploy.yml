@@ -3,6 +3,12 @@ Description: >-
   The is to deply the lambda function used but the alcolizer-rekognition step function
   to parse and process the Alcolizer email.
 Parameters:
+  SNSNotificationTopicName:
+    Type: String
+    Default: Alcolizer-Rekognition-Notification
+    Description: This is the SNS topic for Alcolizer-Rekognition Notifications 
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.  
   HierarchyKey:
     Type: String
     Default: dev
@@ -16,6 +22,71 @@ Parameters:
     MinLength: '1'
     ConstraintDescription: This parameter is required.    
 Resources:
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: 'Alcolizer-Rekognition Notifcation Topic'
+      TopicName: !Ref SNSNotificationTopicName     
+  EmailNotificationSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn: !Ref NotificationTopic
+      Endpoint: !GetAtt 
+        - AlcolizerEmailNotificationFunctionHndlr
+        - Arn
+      Protocol: lambda
+  SNSNotificationSubscription:
+    Type: 'AWS::SNS::Subscription'
+    Properties:
+      TopicArn: !Ref NotificationTopic
+      Endpoint: !GetAtt 
+        - AlcolizerSMSNotificationFunctionHndlr
+        - Arn
+      Protocol: lambda      
+  AlcolizerEmailNotificationFunctionHndlr:
+    Type: AWS::Lambda::Function
+    Properties:      
+      FunctionName : !Join ['', ['alcolizer-send-positive-email', '-', !Ref 'HierarchyKey']]
+      Handler: alcolizer-send-positive-email.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-send-positive-email.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300  
+  EmailNotificationFunctionInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref AlcolizerEmailNotificationFunctionHndlr
+      Principal: sns.amazonaws.com   
+  AlcolizerSMSNotificationFunctionHndlr:
+    Type: AWS::Lambda::Function
+    Properties:      
+      FunctionName : !Join ['', ['alcolizer-send-positive-sms', '-', !Ref 'HierarchyKey']]
+      Handler: alcolizer-send-positive-sms.lambda_handler
+      Role: !GetAtt
+        - LambdaS3AccessLambdaPutRole
+        - Arn
+      Code:
+        S3Bucket: !Ref AlcolizerBucket 
+        S3Key: code/handlers/alcolizer-send-positive-sms.zip
+      Runtime: python3.8
+      Environment:
+        Variables:
+          hierarchy: !Ref 'HierarchyKey'
+      Timeout: 300  
+  SMSNotificationFunctionInvokePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref AlcolizerSMSNotificationFunctionHndlr
+      Principal: sns.amazonaws.com  
   AlcolizerStartStepFunctionHndlr:
     Type: AWS::Lambda::Function
     Properties:      
@@ -280,6 +351,8 @@ Resources:
         ManagedPolicyArns:
           - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
           - 'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess'
+          - 'arn:aws:iam::aws:policy/AmazonSNSFullAccess'
+          - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
         Policies:
           - PolicyName: AlcolizerAccessS3BucketA
             PolicyDocument:

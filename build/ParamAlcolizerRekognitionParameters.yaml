@@ -171,6 +171,24 @@ Resources:
       Tier: Standard
       Type: String
       Value: config/status-notification-template.html
+  SMSNotificationTemplateParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/s3/sms/text-msg-template']]
+      DataType: text
+      Description: The HTML template for a positive results notification.                
+      Tier: Standard
+      Type: String
+      Value: config/positive-sms-template.txt
+  SMSNotificationTopicARN:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/sns/topic/notification']]
+      DataType: text
+      Description: The HTML template for a positive results notification.                
+      Tier: Standard
+      Type: String
+      Value: arn:aws:sns:ap-southeast-2:317510107845:Alcolizer-Rekognition-Notification
   ServerSMTPParameter:
     Type: AWS::SSM::Parameter
     Properties: 
