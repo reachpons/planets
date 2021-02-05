@@ -1,0 +1,166 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "This is for creating AWS ECR repository"
+Parameters: 
+  ECRRepoName:
+    Description: "Enter the  AWS ECR  repository name that you wanted to create"
+    Type: String
+  EnvName:
+    Description: "Enter the  Environment name(Dev/UAT/Prod)"
+    Type: String
+  VPC:
+    Description: "Enter the  VPC name"
+    Type: 'AWS::EC2::VPC::Id'
+  SubnetIds:
+    Description: "Enter the  Subnet Ids"
+    Type: 'List<AWS::EC2::Subnet::Id>'
+Resources:
+    ECRRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Ref ECRRepoName
+    BatchServiceRole:
+        Type: AWS::IAM::Role
+        Properties:
+          RoleName: !Join [ "_", [ !Ref EnvName, "AWSBatchServiceRole" ] ]
+          AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Principal:
+                Service: batch.amazonaws.com
+              Action: sts:AssumeRole
+          ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSBatchServiceRole
+    BatchContainerIAMRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: !Join [ "_", [ !Ref EnvName, "AWSEcsTaskRole" ] ]
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - 
+              Effect: 'Allow'
+              Principal:
+                Service:
+                  - 'ecs-tasks.amazonaws.com'
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonRekognitionFullAccess
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        Policies:
+          - 
+            PolicyName: 'SubmitBatch'
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - 
+                  Effect: 'Allow'
+                  Action:
+                    - 'batch:SubmitJob'
+                  Resource: '*'
+    CloudWatchEventIAMRole:
+        Type: AWS::IAM::Role
+        Properties:
+          RoleName: !Join [ "_", [ !Ref EnvName, "CloudwatchEventRole" ] ]
+          AssumeRolePolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Principal:
+                Service: events.amazonaws.com
+              Action: sts:AssumeRole
+          Policies:
+            - 
+              PolicyName: 'SubmitBatch'
+              PolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                  - 
+                    Effect: 'Allow'
+                    Action:
+                      - 'batch:SubmitJob'
+                    Resource: '*'
+    ComputeSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+          VpcId: !Ref VPC
+          GroupDescription: Used to allow AWS batch to communicate with AWS compute environment.
+          GroupName: !Join [ "_", [ !Ref EnvName, "Batch_Compute_SecurityGroup" ] ]
+          SecurityGroupIngress:
+          - CidrIp: 10.0.0.0/8
+            FromPort: -1
+            IpProtocol: -1
+            ToPort: -1
+    ComputeEnvironment:
+        Type: AWS::Batch::ComputeEnvironment        
+        Properties:
+          ComputeEnvironmentName: !Join [ "_", [ !Ref EnvName, "Alcolizer" ] ]
+          Type: MANAGED
+          ComputeResources:
+            Type: FARGATE
+            MaxvCpus: 10
+            Subnets: !Ref SubnetIds
+            SecurityGroupIds: 
+            - !Ref ComputeSecurityGroup
+          ServiceRole:
+            Ref: BatchServiceRole
+    BatchProcessingJobQueue:
+        Type: AWS::Batch::JobQueue
+        Properties:
+          JobQueueName: !Join [ "_", [ !Ref EnvName, "AlcolizerJobQueue" ]]
+          Priority: 1
+          ComputeEnvironmentOrder:
+          - Order: 1
+            ComputeEnvironment:
+              Ref: ComputeEnvironment
+    BatchProcessingJobDefinition:
+        Type: AWS::Batch::JobDefinition
+        Properties:
+          Type: container
+          JobDefinitionName: !Join [ "_", [ !Ref EnvName, "AlcolizerJobDefinition" ]]
+          ContainerProperties:
+            ExecutionRoleArn: !GetAtt BatchContainerIAMRole.Arn              
+            JobRoleArn: !GetAtt BatchContainerIAMRole.Arn
+            Image:
+              Fn::Join:
+              - ''
+              - - Ref: AWS::AccountId
+                - .dkr.ecr.
+                - Ref: AWS::Region
+                - ".amazonaws.com/"
+                - !Ref ECRRepoName
+                - ":latest"
+            ResourceRequirements: 
+            - Type: VCPU
+              Value: 2
+            - Type: MEMORY
+              Value: 5120
+            Command:
+            - python 
+            - main.py
+            Environment:
+            - Name : env_prefix
+              Value : !Ref EnvName
+          RetryStrategy:
+            Attempts: 1
+          PlatformCapabilities: [FARGATE]
+    CloudwatchEventRule:
+        Type: 'AWS::Events::Rule'
+        Properties:
+          Name: !Join [ "_", [ !Ref EnvName, "Daily-Refresh-facial-recognition" ]]
+          Description: This job refresh the AWS Facial recognition collection every day          
+          ScheduleExpression: "cron(0 09 * * ? *)"
+          State: ENABLED
+          Targets:
+            - Arn: 
+                Ref: BatchProcessingJobQueue
+              BatchParameters:
+                JobDefinition:
+                  Ref: BatchProcessingJobDefinition
+                JobName: AlcolizerNewHireJob
+              Id: Cloudwatchevent1
+              RoleArn: !GetAtt CloudWatchEventIAMRole.Arn 
+          EventBusName: "default"
+      
