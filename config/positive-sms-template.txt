@@ -1,0 +1,5 @@
+Please be advised that $surname, $givenNames has had a non-negative breath alcohol concentration result and requires a confirmatory test to be completed within 20 minutes.
+Date & Time : $datetime
+Alcolier location: $location 
+Alcolier Serial #:  $alcolizer
+Result : $displayedResult	

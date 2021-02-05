@@ -1,60 +1,39 @@
 {
-	"Solomon" : { 
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
+    "Hedland" : { 
+        "SiteManager" : { 
+            "email" : "",
+            "mobile" : "" 
+        },
+        "EmergencyServices" : { 
+            "email" : "",
+            "mobile" : "" 
+        },
+        "ShudownEmailDistributionList" :"",
+        "SecondaryBreathTestLocation" :""
     },
-    "ChristmasCreek" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
+    "Fortescue Centre" :  { 
+        "SiteManager" : { 
+            "email" : "ibunney@fmgl.com.au",
+            "mobile" : "043 9983596" 
+        },
+        "EmergencyServices" : { 
+            "email" : "ibunney@fmgl.com.au",
+            "mobile" : "043 9983596" 
+        },
+        "ShudownEmailDistributionList" : "AlcolizerRekognitionDev@fmgl.com.au",
+        "SecondaryBreathTestLocation" : "Level 1 Crib Stack B"
     },
-    "Eliwana" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
-    },    
-    "IronBridge" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
-    },    
-    "PortRail" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
-    },
-    "Cloudbreak" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",        
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
-    },
-    "Fortescue Centre" :
-    {
-        "SiteManager" :"ibunney@fmgl.com.au",
-        "EmergencyServicesDistributionList" :"ibunney@fmgl.com.au",
-        "ShudownDistributionList" : "ibunney@fmgl.com.au",        
-        "SecondaryBreathTestLocation" :"Level 1 Crib Stack B",
-        "ContactPhone" :"043 1234 5678"
-    },
-    "(Unknown)" : {
-        "SiteManager" :"",
-        "EmergencyServicesDistributionList" :"",
-        "ShudownDistributionList" :"",        
-        "SecondaryBreathTestLocation" :"",
-        "ContactPhone" :""
+    "(Unknown)" :  { 
+        "SiteManager" : { 
+            "email" : "",
+            "mobile" : "" 
+        },
+        "EmergencyServices" : { 
+            "email" : "",
+            "mobile" : "" 
+        },
+        "ShudownEmailDistributionList" :"",
+        "SecondaryBreathTestLocation" :""
     }
 }
 
