@@ -59,7 +59,7 @@ def getAttachment(content):
     msg = email.message_from_string(decoded)  # ? encoding = 'ISO-8859-1'
     msg_content_type = msg.get_content_type()
     
-    attachmentName=None
+    attachmentName='null'
     for part in msg.walk():
 
         if part.get_content_maintype() == 'multipart':            
@@ -81,8 +81,7 @@ def lambda_handler(event, context):
     global logger
     logger=establish_logger()
 
-    #hierarchy = os.environ['hierarchy']
-    hierarchy='dev'
+    hierarchy = os.environ['hierarchy']    
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
 

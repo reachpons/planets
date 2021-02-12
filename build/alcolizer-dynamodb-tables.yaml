@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   The is to deploy the two dynamodb tables used by the Alcolizer-rekcognition app.    
 Parameters:
+  HierarchyKey:
+    Type: String
+    Default: ianb
+    Description: This is the environment that will determine the SSMParamaters - dev/test/production
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.  
   MinCapacityUnits:
     Type: Number
     Default: 5
@@ -11,7 +17,7 @@ Resources:
   AlcolizerResults: 
     Type: AWS::DynamoDB::Table
     Properties: 
-      TableName: alcolizer-dev-breathalyzer-results
+      TableName: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-breathalyzer-results']] 
       BillingMode: 'PROVISIONED'
       KeySchema: 
           - AttributeName: 'eventId'
@@ -29,7 +35,7 @@ Resources:
   RekognitionResults: 
     Type: AWS::DynamoDB::Table
     Properties: 
-      TableName: alcolizer-dev-rekognition-results
+      TableName: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-rekognition-results']]
       KeySchema: 
           - AttributeName: 'rowUid'
             KeyType: "HASH"
@@ -42,7 +48,7 @@ Resources:
   AlcolizerConfig: 
     Type: AWS::DynamoDB::Table
     Properties: 
-      TableName: alcolizer-dev-alcolizer-location-map
+      TableName: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-alcolizer-location-map']]
       BillingMode: 'PROVISIONED'
       KeySchema: 
           - AttributeName: 'serialNo'
@@ -56,7 +62,7 @@ Resources:
   ScalingRole: 
     Type: AWS::IAM::Role
     Properties: 
-      RoleName: ScalingRole
+      RoleName: !Join ['', ['ScalingRole-', !Ref HierarchyKey ]]
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -71,7 +77,7 @@ Resources:
     Properties:
         Roles:
         - !Ref ScalingRole
-        PolicyName: ScalingRolePolicyPolicy
+        PolicyName: !Join ['', ['ScalingRolePolicyPolicy-', !Ref HierarchyKey ]]
         PolicyDocument: 
           Version: '2012-10-17'
           Statement: 
@@ -91,7 +97,7 @@ Resources:
     Properties: 
         MaxCapacity: !Ref MinCapacityUnits
         MinCapacity: !Ref MinCapacityUnits
-        ResourceId: table/alcolizer-dev-breathalyzer-results
+        ResourceId: !Join ['', ['table/alcolizer-', !Ref HierarchyKey, '-breathalyzer-results']]
         RoleARN: !GetAtt 
           - ScalingRole
           - Arn
@@ -102,7 +108,7 @@ Resources:
     Properties: 
         MaxCapacity: !Ref MinCapacityUnits
         MinCapacity: !Ref MinCapacityUnits
-        ResourceId: table/alcolizer-dev-rekognition-results
+        ResourceId: !Join ['', ['table/alcolizer-', !Ref HierarchyKey, '-rekognition-results']]
         RoleARN: !GetAtt 
           - ScalingRole
           - Arn
@@ -113,7 +119,7 @@ Resources:
     Properties: 
         MaxCapacity: !Ref MinCapacityUnits
         MinCapacity: !Ref MinCapacityUnits
-        ResourceId: table/alcolizer-dev-alcolizer-location-map
+        ResourceId: !Join ['', ['table/alcolizer-', !Ref HierarchyKey, '-alcolizer-location-map']] 
         RoleARN: !GetAtt 
           - ScalingRole
           - Arn
@@ -122,7 +128,7 @@ Resources:
   TableWriteScalingPolicyBreathalyzer:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-        PolicyName: TableWriteScalingPolicyBreathalyzer
+        PolicyName: !Join ['', ['TableWriteScalingPolicyBreathalyzer-', !Ref HierarchyKey ]] 
         PolicyType: TargetTrackingScaling
         ScalingTargetId: !Ref TableWriteCapacityScalableTargetBreathalyzer
         TargetTrackingScalingPolicyConfiguration: 
@@ -134,7 +140,7 @@ Resources:
   TableWriteScalingPolicyAlcolizer:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-        PolicyName: TableWriteScalingPolicyAlcolizer
+        PolicyName: !Join ['', ['TableWriteScalingPolicyAlcolizer-', !Ref HierarchyKey ]] 
         PolicyType: TargetTrackingScaling
         ScalingTargetId: !Ref TableWriteCapacityScalableTargetAlcolyzer
         TargetTrackingScalingPolicyConfiguration: 
@@ -146,7 +152,7 @@ Resources:
   TableWriteScalingPolicyAlcolizer:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-        PolicyName: TableWriteScalingPolicyConfig
+        PolicyName: !Join ['', ['TableWriteScalingPolicyConfig-', !Ref HierarchyKey ]] 
         PolicyType: TargetTrackingScaling
         ScalingTargetId: !Ref TableWriteCapacityScalableTargetConfig
         TargetTrackingScalingPolicyConfiguration: 

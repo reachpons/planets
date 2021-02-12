@@ -1,0 +1,112 @@
+Return-Path: <alcolizer@fmgl.com.au>
+Received: from mx07-002fa902.pphosted.com (mx07-002fa902.pphosted.com [205.220.184.86])
+ by inbound-smtp.us-east-1.amazonaws.com with SMTP id abgo9u26ftoimies5cj0uq21bqvvah9np6q2c601
+ for alcolizer@fmgl-alcolizer-uat.io;
+ Tue, 08 Dec 2020 00:21:58 +0000 (UTC)
+X-SES-Spam-Verdict: PASS
+X-SES-Virus-Verdict: PASS
+Received-SPF: pass (spfCheck: domain of fmgl.com.au designates 205.220.184.86 as permitted sender) client-ip=205.220.184.86; envelope-from=alcolizer@fmgl.com.au; helo=mx07-002fa902.pphosted.com;
+Authentication-Results: amazonses.com;
+ spf=pass (spfCheck: domain of fmgl.com.au designates 205.220.184.86 as permitted sender) client-ip=205.220.184.86; envelope-from=alcolizer@fmgl.com.au; helo=mx07-002fa902.pphosted.com;
+ dkim=pass header.i=@fmgl.com.au;
+ dmarc=pass header.from=fmgl.com.au;
+X-SES-RECEIPT: AEFBQUFBQUFBQUFIc3RSWjNlWlJ5UzdockcxdnNXYVZJVWxFZjNpb1JHTTRhQy83MFc4U00xMzh3MlNzcU8wYXRoSXlMZlBONTk0Zi9qaWhrVTNjd21ENEJBOTFNQTZWRmFLV3pnUGM1SDZiUXlOVkw3RlIvdHNSaFhlcEllYlcvN3ZSVklaTG9ra3RQQ3djVWhpWktjWldEVHpOdnhtcGg1Q05qUzhSNGpFeElKeE1nZTRyREc3QXQrcm12KzdMbG04WlB5MzdybkxvZ2JYQWFUUGhxREdYRjZDY0RqVFNjSmV4RlY1T2xNKzhCcTJwcUFyRndWZHhrOHkxZjZ5NVZUSHhyQ2Rkb296d0NEeWFFQnAxU3ZveTNTSFNVQkhnZUVhMTIwMmxMcVJCREt4SEswSUNyaVE9PQ==
+X-SES-DKIM-SIGNATURE: a=rsa-sha256; q=dns/txt; b=Yk7h4b4ueK7DUdjwvE6UwypNgq08WUac16nB10qejp9iZ/l1x7ck30ci2YVrutWFQ/Gd+FKGyEcFUsKf9umXBRok4oGN4blUSF5co3g812eQ4+TN/GF2r5PF6FNkL6CfFZxCHZlaD7k78SeLvvWmkKbiavWbbx+fofbQmSc90pc=; c=relaxed/simple; s=224i4yxa5dv7c2xz3womw6peuasteono; d=amazonses.com; t=1607386920; v=1; bh=rxAn2NRKVr38kFATakCEPoKWgQZGLh+wevyMyEC7jbE=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;
+Received: from pps.filterd (m0220602.ppops.net [127.0.0.1])
+	by mx07-002fa902.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 0B80HWe7032515
+	for <alcolizer@fmgl-alcolizer-uat.io>; Tue, 8 Dec 2020 08:21:57 +0800
+Received: from aus01-me3-obe.outbound.protection.outlook.com (mail-me3aus01lp2236.outbound.protection.outlook.com [104.47.71.236])
+	by mx07-002fa902.pphosted.com with ESMTP id 3583j5a22j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <alcolizer@fmgl-alcolizer-uat.io>; Tue, 08 Dec 2020 08:21:57 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KAxMfHMCS0CCk8bA66/GV+9Irvcx3wBOd1eKBbCpq8eH+Svssxse9NHFZTpIum+oeBf5O36uVtfrCYgHHqQZS26qP9hAyG6rRjJ6+lAX/RDLC++2mpy53JuZRYEgpCExPOol+USqD+8X5r5qV156lzeaSzp+ZwK6YanscYXbu8lkUyELx3/ZMBcGq3YyqLIFV0lhOFK8sb/gHHDepQ0vi6GwtQDd9dHF/rJKuqdKQkCWgbfXFm1CfJLfL+V1HIn8bkxsmuz3aihOSjxQSzadqMSIpGWClF0yru3KXdNCreAoS8Wv4SIIvQ+toegtCcLf3ou/DtFF2rm/AXP0b7BvNA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rxAn2NRKVr38kFATakCEPoKWgQZGLh+wevyMyEC7jbE=;
+ b=YscT5MAMZd1WuHtp22bLin9MOmHh6FXLXXqQ0wQeUHsWtVJ7vPx5cqZ4Hv1B52uHyYfTWZ34/Lq0T4ILi5rZa1xmKeiY3XvEv33uE1Fxi96ozwRhOn9HL2MJaJOrHwfExeTp4fRSIfjJC7hgQgufKGDX7kPEbcc9M8k1CiQ7ityRC24IbTN9DJ9XZzNcLK1dTCJ8gmUcqhOYG9UT98AGItte2u+jMbtrWeBIc97FhFgJN9inLbg4qv2/7p8GQcbG+Trt6XWmZSGsljdb/rpb17MAOY3T3xPpmgFiHHrzWPZKfpOOO6a3mRoN4qgu/dODVi5lSQ2RynqWLJ8Gc+cISA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
+ 202.94.72.180) smtp.rcpttodomain=fmgl-alcolizer-uat.io
+ smtp.mailfrom=fmgl.com.au; dmarc=fail (p=none sp=none pct=100) action=none
+ header.from=fmgl.com.au; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fmgl.com.au;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rxAn2NRKVr38kFATakCEPoKWgQZGLh+wevyMyEC7jbE=;
+ b=n0daEhWibW1+zHtgInqzVAFKT2QgEa+6X9zTFwQWJIR70GGJxN9yLMSLB0CBSv+T7NwnOjLRRY13vK5PqAHVkmopIk5lKGSmY0UldmVznIpMWGDIEqExljvMaQa7USRA+S+9ARtcGq8ZndWrRErrkH3+/b5wItkdzvnVESxvOmliBIFg0pte/WPrks2eq9rzylSPUoDDsItgm5d8G4EiIhjK11Xzo7V0pvRxXOBdj2vGMUhzVAZMGaTnhj0G4dDVdq29dl30SWkZxcR7WA5RTfXjoDHMRJ09uDS0N/XgXpEWJJxA9I9HGTFTrntPlCbJQAbA2OIXNybMM8uv9JDcIw==
+Received: from SYBPR01CA0184.ausprd01.prod.outlook.com (2603:10c6:10:52::28)
+ by SYXPR01MB0877.ausprd01.prod.outlook.com (2603:10c6:0:10::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3632.21; Tue, 8 Dec
+ 2020 00:21:51 +0000
+Received: from ME3AUS01FT023.eop-AUS01.prod.protection.outlook.com
+ (2603:10c6:10:52:cafe::a0) by SYBPR01CA0184.outlook.office365.com
+ (2603:10c6:10:52::28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3632.17 via Frontend
+ Transport; Tue, 8 Dec 2020 00:21:51 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 202.94.72.180)
+ smtp.mailfrom=fmgl.com.au; fmgl-alcolizer-uat.io; dkim=none (message not
+ signed) header.d=none;fmgl-alcolizer-uat.io; dmarc=fail action=none
+ header.from=fmgl.com.au;
+Received-SPF: Fail (protection.outlook.com: domain of fmgl.com.au does not
+ designate 202.94.72.180 as permitted sender) receiver=protection.outlook.com;
+ client-ip=202.94.72.180; helo=VMSYDEXCH01.FMG.local;
+Received: from VMSYDEXCH01.FMG.local (202.94.72.180) by
+ ME3AUS01FT023.mail.protection.outlook.com (10.114.155.164) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.3632.17 via Frontend Transport; Tue, 8 Dec 2020 00:21:51 +0000
+Received: from thorium (10.4.233.30) by VMSYDEXCH01.FMG.local (10.219.243.6)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2044.4; Tue, 8 Dec 2020
+ 08:21:49 +0800
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="573bc7f98c8d612361640922dec9166d6c1efaf2"
+Date: Tue, 8 Dec 2020 08:21:49 +0800
+From: <alcolizer@fmgl.com.au>
+Message-ID: <1607386909.722442.1892@thorium>
+Subject: WM4 - Test Email
+To: <alcolizer@fmgl-alcolizer-uat.io>
+X-Originating-IP: [10.4.233.30]
+X-ClientProxiedBy: VMSYDEXCH01.FMG.local (10.219.243.6) To
+ VMSYDEXCH01.FMG.local (10.219.243.6)
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3d8cf8ab-331d-4da8-250d-08d89b0f4271
+X-MS-TrafficTypeDiagnostic: SYXPR01MB0877:
+X-Microsoft-Antispam-PRVS: 
+	<SYXPR01MB08772A6B1D5A46BCA30735EEE6CD0@SYXPR01MB0877.ausprd01.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 
+	wAjws8NX0gapw++1vlgZjAHGYGzebo01i2kHQJ7US34jinIENUH2DLzG4GzMR/M/lmzudD/bka3tXm7XDHd5pjQRrr8rEvrpAE8PuLRPrBwThSgaADXT4EmM+trcAubxvhS08UTEtXpqoRqNfh055TfXKMGiKDFGElk6fBX/PTa/B9GVJ0Gxu3s7HkQd9VDH2AbudF1gfT9V2EjSid5SA/428kaExysxELiDKOYFA6ufE0Cz9o48zbR00OOOkZHFVa+pzaSijrrPTc3rm8H8g53AZor4fXz1/Y//CXGaAYWei5lNuSKhFUWu2G2NQhkBp6bJ5OvBvQBRM2fIBveFeEAog2fLGt7ABIATKes6/FFxuv3WL5r+Qu6RO5BmevKw9ZpwUbe/Qj/CXWEswzvhRqmIrOSdD+qmcXLk7yBB3qbQ7e+DNuLeEkhhvAMp7fg8VCymWG+r24fF3On9LDh+pQ==
+X-Forefront-Antispam-Report: 
+	CIP:202.94.72.180;CTRY:AU;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VMSYDEXCH01.FMG.local;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(376002)(346002)(46966005)(66616009)(47076004)(70586007)(70206006)(2906002)(55016002)(5660300002)(186003)(6916009)(8936002)(86362001)(9686003)(564344004)(2876002)(9576002)(26005)(33716001)(8676002)(336012)(356005)(16526019)(508600001)(82310400003)(81166007)(93026001)(93036002)(62816006);DIR:OUT;SFP:1102;
+X-OriginatorOrg: fmgl.com.au
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Dec 2020 00:21:51.0983
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3d8cf8ab-331d-4da8-250d-08d89b0f4271
+X-MS-Exchange-CrossTenant-Id: 143a7396-a856-47d7-8e31-62990b5bacd0
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=143a7396-a856-47d7-8e31-62990b5bacd0;Ip=[202.94.72.180];Helo=[VMSYDEXCH01.FMG.local]
+X-MS-Exchange-CrossTenant-AuthSource: 
+	ME3AUS01FT023.eop-AUS01.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SYXPR01MB0877
+
+--573bc7f98c8d612361640922dec9166d6c1efaf2
+Content-Type: text/plain
+
+Product: WM4
+Serial: 22720396
+Description: FMG Test Alcolizer
+
+
+--573bc7f98c8d612361640922dec9166d6c1efaf2
+Content-Type: text/plain
+
+
+--573bc7f98c8d612361640922dec9166d6c1efaf2--

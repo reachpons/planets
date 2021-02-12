@@ -42,6 +42,8 @@ def createtextMsg(data):
 
 def lambda_handler(event, context):
 
+    code='500'
+
     global logger
     logger=establish_logger()
        
@@ -49,6 +51,7 @@ def lambda_handler(event, context):
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )        
 
+    # should only be 1 record
     for rec in event['Records']:
         
         content= rec['Sns']['Message']           
@@ -60,10 +63,19 @@ def lambda_handler(event, context):
 
         sns = bto.client('sns',region_name=region)     
         mobile ='{}{}'.format(COUNTRY_PREFIX,targets['mobile'])
-        code=sendSMS(sns,mobile,msg)    
-
-    return {
-        'statusCode' : code,
+       
+             
+        blocked = store['notification/blocked']        
+        if blocked != 'TRUE' :
+            code=sendSMS(sns,mobile,msg)    
+    
+    result = {
+        'statusCode': code,
+        'blocked' : blocked,
         'Recipient': targets
     }
+        
+    logger.info('SMS SNS Complete [%s].', result)
+
+    return result
 

@@ -4,10 +4,13 @@ import boto3
 from datetime import datetime
 
 def list_faces_in_collection(collection_id):
-    all={}    
+   
     maxResults=4096
+
     client=boto3.client('rekognition')
     
+    all={}
+    cycle=0
     response=client.list_faces(CollectionId=collection_id,
                                MaxResults=maxResults)
     while response:
@@ -15,12 +18,14 @@ def list_faces_in_collection(collection_id):
         faces=response['Faces']
         for face in faces:
             all[face['ExternalImageId']]=face['FaceId']
+            faces_count+=1
         
         if 'NextToken' not in response: break           
         response=client.list_faces(CollectionId=collection_id,
                                     MaxResults=maxResults,
                                     NextToken=response['NextToken'])     
        
+
     return all   
 
 def main():

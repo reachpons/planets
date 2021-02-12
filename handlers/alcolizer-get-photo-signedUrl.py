@@ -19,35 +19,32 @@ def getURL(s3Client, bucket,key):
 def getEventDetail(key):
 
     dynamoDBTable = store['dynamoDB/rekognition-result']
+    index = store['dynamoDB/rekognition-result-secondary-index']
     dynamoDBRegion = store['dynamoDB/region']
     
-    client = bto.client('dynamodb', region_name=dynamoDBRegion)
-    response = client.scan( TableName=dynamoDBTable,
-                            ProjectionExpression='#_imageKey',
-                            FilterExpression='#_eventId = :id',
-                            ExpressionAttributeNames = {
-                                    '#_eventId': 'eventId',
-                                    '#_imageKey' : 'imageKey'
-                            },
-                            ExpressionAttributeValues={
-                                    ':id': {'S': key}
-                            } 
+    client = bto.resource('dynamodb', region_name=dynamoDBRegion)
+    table=client.Table(dynamoDBTable)
+        
+    response = table.query( IndexName=index,
+                            KeyConditionExpression=Key('eventId').eq(key)
                         )
-         
-    
-    return response['Items']
+    logger.info(response)
+    return response['Items'] 
+
 
 def getSignedUrl(eventId):
     
-    rows=getEventDetail(eventId)
-    imageKeys = [row['imageKey']['S'] for row in rows ]    
-    distinctKeys=set(imageKeys)    
-
-    s3Client = bto.client('s3')
-    s3bucket = store['s3/bucket']
     urls=[]
-    for key in distinctKeys:
-        urls.append( getURL(s3Client,s3bucket,key)  )
+    
+    rows=getEventDetail(eventId)    
+    if rows:
+        imageKeys = [row['imageKey'] for row in rows ]    
+        distinctKeys=set(imageKeys)    
+    
+        s3Client = bto.client('s3')
+        s3bucket = store['s3/bucket']
+        for key in distinctKeys:
+            urls.append( getURL(s3Client,s3bucket,key)  )
 
     return urls
 

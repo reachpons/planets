@@ -66,7 +66,7 @@ def lambda_handler(event, context):
     global logger
     logger=establish_logger()
        
-    hierarchy = 'dev' # os.environ['hierarchy']
+    hierarchy = os.environ['hierarchy']
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )           
     

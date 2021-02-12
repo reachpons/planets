@@ -48,7 +48,7 @@ Resources:
                         "Effect": "Deny",
                         "Principal": "*",
                         "Action": "execute-api:Invoke",
-                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:*/v0/GET/event/*",
+                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:/*",
                         "Condition": {
                             "StringNotEquals": {
                                 "aws:sourceVpc": "vpc-0159fa80f47d2d416"
@@ -59,7 +59,7 @@ Resources:
                         "Effect": "Allow",
                         "Principal": "*",
                         "Action": "execute-api:Invoke",
-                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:*/v0/GET/event/*"
+                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:/*"
                     }
                 ]
             }
@@ -183,7 +183,7 @@ Resources:
     DependsOn: ApiGatewayMethodGET
     Properties:      
       RestApiId: !Ref ApiGatewayRestApi  
-      StageName: "v0"
+      StageName: !Ref HierarchyKey
   LambdaExecutionRole:
     Type: 'AWS::IAM::Role'    
     Properties:

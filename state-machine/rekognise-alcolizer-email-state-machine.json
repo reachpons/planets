@@ -4,7 +4,18 @@
     "ExtractEmailAttachment": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-extract-email-attachment-dev",
-      "Next": "ClassifyEmail"
+      "Next": "IsAlcolizerEmail"
+    },
+    "IsAlcolizerEmail": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.email.key",
+          "StringEquals": "null",
+          "Next": "IgnoreEmail"
+        }
+      ],
+      "Default": "ClassifyEmail"
     },
     "ClassifyEmail": {
       "Type": "Task",

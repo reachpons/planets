@@ -4,7 +4,7 @@ Description: >-
 Parameters:
   HierarchyKey:
     Type: String
-    Default: dev
+    Default: uat
     Description: This is the environment that will determine the SSMParamaters - /test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.   
@@ -36,6 +36,15 @@ Resources:
       Tier: Standard
       Type: String
       Value: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-rekognition-results']]
+  ApplicationRekognitionResultsSecondayIndexParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/dynamoDB/rekognition-result-secondary-index']]
+      DataType: text
+      Description: The secondary index for the Rekognition results table.
+      Tier: Standard
+      Type: String
+      Value: !Join ['', ['alcolizer-', !Ref HierarchyKey, '-result-secondary-index']]
   ApplicationAlcolizerLocationDBTableParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -88,8 +97,8 @@ Resources:
       DataType: text
       Description: The id of the Rekognition face collection.
       Tier: Standard
-      Type: String
-      Value: uat-rekognition-collection
+      Type: String      
+      Value: !Join ['', [!Ref HierarchyKey, '-rekognition-collection']]
   ApplicationRekognitionCollectionThresholdParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -188,16 +197,7 @@ Resources:
       Description: The HTML template for a positive results notification.                
       Tier: Standard
       Type: String
-      Value: arn:aws:sns:ap-southeast-2:317510107845:Alcolizer-Rekognition-Notification
-  ServerSMTPParameter:
-    Type: AWS::SSM::Parameter
-    Properties: 
-      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/email/smtp-server']]
-      DataType: text
-      Description: The target SMTP Server for mail relay 
-      Tier: Standard
-      Type: String
-      Value: mailrelay.fmg.local
+      Value: !Join ['', ['arn:aws:sns:ap-southeast-2:317510107845:alcolizer-rekognition-notification', '-', !Ref 'HierarchyKey']] 
   NotificationRuleConfigParameter:
     Type: AWS::SSM::Parameter
     Properties: 
@@ -207,4 +207,39 @@ Resources:
       Tier: Standard
       Type: String
       Value: "{}"
-  
+  NoReplyEmailParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/ses/noreply']]
+      DataType: text
+      Description: The HTML template for a positive results notification.                
+      Tier: Standard
+      Type: String
+      Value: ibunney@fmgl.com.au
+  BlockedEmailParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/notification/blocked']]
+      DataType: text
+      Description: This is a boolean flag that blocked all notifications. It must be UPPERCASE string TRUE
+      Tier: Standard
+      Type: String
+      Value: 'TRUE'
+  NotificationsExclusionParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/notifications/exclusions']]
+      DataType: text
+      Description: This is a | delimted list of Job titles that should only be refered to site manager
+      Tier: Standard
+      Type: String
+      Value: 'Group Manager|Director|Chief Executive Officer|Chief Representative China|Chief General Counsel|Chief Operating Officer|Deputy Chief Executive Officer|Chief Financial Officer'
+  ShutdownExclusionParameter:
+    Type: AWS::SSM::Parameter
+    Properties: 
+      Name: !Join ['', ['/alcolizer-rekognition/', !Ref HierarchyKey, '/notifications/shutdown']]
+      DataType: text
+      Description: Send Notification to shutdown manager if this keyword in Job Title
+      Tier: Standard
+      Type: String
+      Value: 'Shutdown'

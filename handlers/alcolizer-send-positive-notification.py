@@ -17,21 +17,23 @@ def establish_logger():
     logr.setLevel(logging.INFO)
     return logr
 
-def fetchEmployeeData(event):
+def fetchEmployeeData(sapid):
     
     # fetch data from SucessFactors
-    sapid=event['event']['weighted']['sapid']
-    # TODO Check for confidence 
-
-    employees=EmployeeDetail(APIEndpoint='Sucessfactors.fmgl.com.au')    
-    return employees.fetch(sapid)
+    employees=EmployeeDetail(sapid)    
+    return employees.fetch()
 
 def buildData(event): 
 
     # extract Weighted SAPID
-       
-    detail=fetchEmployeeData(event)
+    sapid=event['event']['weighted']['sapid']
+    # TODO Check for confidence 
+    
+    if len(sapid) == 0 :
+        return None,None,None
 
+    detail=fetchEmployeeData(sapid)
+        
     # Create a Single data blob for HTML Combine
     employee=detail['employee']
     supervisor=detail['supervisor']
@@ -39,11 +41,10 @@ def buildData(event):
     
     dt=parse(result['alcolizerDateTime'])
     prettyDate=datetime.strftime(dt,'%d %B %Y : %H:%M:%S')
-
+                
     data= {
             'surname' : employee['surname'],
-            'givenNames' : employee['firstName'],
-            'shift' :'Day',
+            'givenNames' : employee['firstName'],            
             'department' : employee['department'],
             'supervisorSurname' : supervisor['surname'],
             'supervisorGivenNames' : supervisor['firstName'],
@@ -52,7 +53,9 @@ def buildData(event):
             'displayedResult' : result['resultDisplayedText'],
             'company' :' Fortescue Metals Group',
             'site' : result['site'],
-            'location' : result['location']            
+            'location' : result['location'],
+            'similarity' : event['event']['weighted']['similarity'],
+            'confidence' : event['event']['weighted']['confidence']
         }
 
     return data,detail,result['site']
@@ -82,6 +85,12 @@ def lambda_handler(event, context):
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
            
     msgData,employeeData,site=buildData(event)
+
+    if employeeData is None:
+        return {
+            'statusCode' : 200,
+            'Recipient': 'No Identity'
+        }
    
     # rule rules set of employeeData tyo determine recipient
     rule = NotificationRule(store,site)

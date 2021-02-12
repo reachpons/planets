@@ -1,0 +1,49 @@
+{
+  "statusCode": 200,
+  "category": "isStatusReport",
+  "note": "Status Report",
+  "isBlocked": false,
+  "email": {
+    "bucket": "dev-alcolizer-rekognition",
+    "key": "attachments/year=2021/month=1/day=25/status-3689c220-5ec4-11eb-be58-41fb6fe2af1b.json"
+  },
+  "status": {
+    "sucesss": 200,
+    "alcolizer": {
+      "serialNo": "33000695",
+      "software": "bk-17.0",
+      "assembly": "AS-00097-07"
+    },
+    "messages": {
+      "date": "2021-01-25T04:17:20.337",
+      "alcolizer": {
+        "serialNo": "33000695",
+        "software": "bk-17.0",
+        "assembly": "AS-00097-07"
+      },
+      "sets": [
+        {
+          "title": "Alert",
+          "group": "The instrument has encountered a temporary condition that is preventing the unit from performing breath analysis. The alert will clear automatically.",
+          "status": "Liquid detected.",
+          "id": "11",
+          "status decription": "Liquid is detected in the breath sample system. This must dry before the instrument can perform another test."
+        },
+        {
+          "title": "Analysis Disabled",
+          "group": "Breath testing is disabled for a reason other than a fault or alert.",
+          "status": "System alert.",
+          "id": "37",
+          "status decription": "Breath testing is disabled because a temporary error condition was detected."
+        },
+        {
+          "title": "Analysis Disabled",
+          "group": "Breath testing is disabled for a reason other than a fault or alert.",
+          "status": "Authorisation required.",
+          "id": "49",
+          "status decription": "The instrument is not authorised to perform a test until a user code is entered, or an ID card is swiped, etc."
+        }
+      ]
+    }
+  }
+}

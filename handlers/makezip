@@ -47,6 +47,14 @@ zip -g alcolizer-send-positive-notification.zip ssm_parameter_store.py;
 zip -g alcolizer-send-positive-notification.zip notification_rule.py;
 zip -g alcolizer-send-positive-notification.zip notification_config.py;
 zip -g alcolizer-send-positive-notification.zip employee_detail.py;
+zip -g alcolizer-send-positive-notification.zip employee_api.py;
+zip -g -r alcolizer-send-positive-notification.zip requests_oauthlib;
+zip -g -r alcolizer-send-positive-notification.zip oauthlib;
+zip -g -r alcolizer-send-positive-notification.zip requests;
+zip -g -r alcolizer-send-positive-notification.zip chardet;
+zip -g -r alcolizer-send-positive-notification.zip certifi;
+zip -g -r alcolizer-send-positive-notification.zip idna;
+zip -g -r alcolizer-send-positive-notification.zip urllib3;
 zip -g alcolizer-send-positive-notification.zip locations.py;
 mv alcolizer-send-positive-notification.zip ../zip/alcolizer-send-positive-notification.zip
 #

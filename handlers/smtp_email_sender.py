@@ -28,7 +28,10 @@ class STMPEmail(object):
     def send(self,body):        
 
         if self._sender is None or  self._subject is None or self._recipients.count == 0 :
-            return 
+            return {
+                'statusCode' : 500 ,
+                'message' : 'No recipients or default Sender configration is Missing.'
+            }
 
         client = bto.client('ses',region_name=self._region)
 

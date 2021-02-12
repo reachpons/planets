@@ -46,11 +46,17 @@ def main():
     global store
     store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
 
+       
+    print( json.dumps(store.getContent(), indent=4) )
+
+    return
+
     gallagherAPIUrl = store['gallagher/API-url']
     authorizationKey=store['gallagher/authorizationKey']
     gallagher=GallagherConnection(gallagherAPIUrl,authorizationKey)
 
     print("Start fetch from Gallagher")
+
     full_db=gallagher.getGallagherCardholders()
     
     #with open('cardholders.json', 'w') as f:

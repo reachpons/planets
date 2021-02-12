@@ -1,0 +1,28 @@
+{
+    "date": "2021-01-11T01:13:41.481",
+    "alcolizer": {
+        "serialNo": "33000695",
+        "software": "bk-17.0",
+        "assembly": "AS-00097-07"
+    },
+    "sets": [
+        {
+            "title": "Alert",
+            "group": "The instrument has encountered a temporary condition that is preventing the unit from performing breath analysis. The alert will clear automatically.",
+            "status": "Liquid is detected in the breath sample system. This must dry before the instrument can perform another test.",
+            "status decription": "Liquid is detected in the breath sample system. This must dry before the instrument can perform another test."
+        },
+        {
+            "title": "Analysis Disabled",
+            "group": "Breath testing is disabled for a reason other than a fault or alert.",
+            "status": "Breath testing is disabled because a temporary error condition was detected.",
+            "status decription": "Breath testing is disabled because a temporary error condition was detected."
+        },
+        {
+            "title": "Analysis Disabled",
+            "group": "Breath testing is disabled for a reason other than a fault or alert.",
+            "status": "The instrument is not authorised to perform a test until a user code is entered, or an ID card is swiped, etc.",
+            "status decription": "The instrument is not authorised to perform a test until a user code is entered, or an ID card is swiped, etc."
+        }
+    ]
+}

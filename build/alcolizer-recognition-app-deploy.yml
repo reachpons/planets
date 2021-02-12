@@ -3,12 +3,6 @@ Description: >-
   The is to deply the lambda function used but the alcolizer-rekognition step function
   to parse and process the Alcolizer email.
 Parameters:
-  SNSNotificationTopicName:
-    Type: String
-    Default: Alcolizer-Rekognition-Notification
-    Description: This is the SNS topic for Alcolizer-Rekognition Notifications 
-    MinLength: '1'
-    ConstraintDescription: This parameter is required.  
   HierarchyKey:
     Type: String
     Default: dev
@@ -26,7 +20,7 @@ Resources:
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: 'Alcolizer-Rekognition Notifcation Topic'
-      TopicName: !Ref SNSNotificationTopicName     
+      TopicName: !Join ['', ['alcolizer-rekognition-notification', '-', !Ref 'HierarchyKey']] 
   EmailNotificationSubscription:
     Type: 'AWS::SNS::Subscription'
     Properties:
@@ -238,7 +232,7 @@ Resources:
       FunctionName: !Join ['', ['alcolizer-send-positive-notification', '-', !Ref 'HierarchyKey']]
       Handler: alcolizer-send-positive-notification.lambda_handler
       Role: !GetAtt
-        - LambdaS3AccessLambdaPutRole
+        - LambdaVPCConnectedS3AccessLambdaPutRole
         - Arn
       Code:
         S3Bucket: !Ref AlcolizerBucket 
@@ -247,7 +241,7 @@ Resources:
       Environment:
         Variables:
           hierarchy: !Ref 'HierarchyKey'
-      Timeout: 300
+      Timeout: 300     
   AlcolizerExtractEmailAttachmentHndlr:
     Type: AWS::Lambda::Function
     Properties:
@@ -308,7 +302,7 @@ Resources:
   BasicRole:
     Type: 'AWS::IAM::Role'    
     Properties:
-      RoleName: alcolizer-rekognition-lambda-execution-role
+      RoleName: !Join ['', ['alcolizer-rekognition-lambda-execution-role', '-', !Ref 'HierarchyKey']] 
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -338,7 +332,7 @@ Resources:
   LambdaS3AccessLambdaPutRole:
       Type: 'AWS::IAM::Role'    
       Properties:
-        RoleName: alcolizer-rekognition-lambda-parse-email-role
+        RoleName: !Join ['', ['alcolizer-rekognition-lambda-parse-email-role', '-', !Ref 'HierarchyKey']] 
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -369,11 +363,55 @@ Resources:
                     - 'ssm:GetParameter'
                     - 'ssm:GetParameters'
                     - 'ssm:GetParametersByPath'
-                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                      
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*                                   
+  LambdaVPCConnectedS3AccessLambdaPutRole:
+      Type: 'AWS::IAM::Role'    
+      Properties:
+        RoleName: !Join ['', ['alcolizer-rekognition-lambda-VPC-connected-role', '-', !Ref 'HierarchyKey']] 
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns:
+          - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+          - 'arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess'
+          - 'arn:aws:iam::aws:policy/AmazonSNSFullAccess'
+          - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
+        Policies:
+          - PolicyName: AlcolizerAccessS3BucketA
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action: 
+                      - 's3:GetObject'
+                      - 's3:PutObject'
+                      - 's3:PutObjectAcl'
+                  Resource: !Join ['', ['arn:aws:s3:::', !Ref 'AlcolizerBucket', '/*']]                     
+                - Effect: Allow
+                  Action: 
+                    - 'ssm:GetParameter'
+                    - 'ssm:GetParameters'
+                    - 'ssm:GetParametersByPath'
+                  Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/alcolizer-rekognition/*          
+                - Effect: Allow
+                  Action: 
+                    - 'ec2:DescribeNetworkInterfaces'
+                    - 'ec2:CreateNetworkInterface'
+                    - 'ec2:DeleteNetworkInterface'
+                    - 'ec2:DescribeInstances'
+                    - 'ec2:AttachNetworkInterface'
+                    - 'ec2:DetachNetworkInterface'                    
+                  Resource: '*'            
   S3ReadRole:
       Type: 'AWS::IAM::Role'    
       Properties:
-        RoleName: alcolizer-rekognition-read-s3-role
+        RoleName: !Join ['', ['alcolizer-rekognition-read-s3-role', '-', !Ref 'HierarchyKey']] 
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -403,7 +441,7 @@ Resources:
   LambdaAcceS3AccessRekognitionAccessRole:
       Type: 'AWS::IAM::Role'    
       Properties:
-        RoleName: alcolizer-rekognition-match-faces-role
+        RoleName: !Join ['', ['alcolizer-rekognition-match-faces-role', '-', !Ref 'HierarchyKey']] 
         AssumeRolePolicyDocument:
           Version: 2012-10-17
           Statement:
@@ -435,7 +473,7 @@ Resources:
   AlcolizerStepFunctionRole:
     Type: 'AWS::IAM::Role'    
     Properties:
-      RoleName: alcolizer-rekognition-step-function-role
+      RoleName: !Join ['', ['alcolizer-rekognition-step-function-role', '-', !Ref 'HierarchyKey']] 
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:

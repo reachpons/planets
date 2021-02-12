@@ -5,6 +5,8 @@ from notification_config import NotificationConfig
 class NotificationRule(object):
 
     def __init__(self,store,site):
+        self._exclusions=store['notifications/exclusions']
+        self._shutdown['notifications/shutdown']        
         self._config=NotificationConfig(store,site)           
                 
 
@@ -13,7 +15,6 @@ class NotificationRule(object):
         # mgr = Site Manager
         # shut = Site Emergency Srvice Distribution List
         # emg = Site Shutown Distribution List
-
         
         mgr=self._config.SiteManager()['email']
         emg=self._config.EmergencyServices()['email']
@@ -22,7 +23,7 @@ class NotificationRule(object):
 
         # if shutdown in Position title
         person=persons['employee']
-
+        
         jobTitle=person['jobTitle']
         if self.isShutdown(jobTitle): return [shut,emg],self._config.EmergencyServices['mobile']
 
@@ -31,7 +32,7 @@ class NotificationRule(object):
 
         # will use supervisor emails
 
-        supervisor=persons['supervisor']
+        supervisor=persons['supervisor']       
         return [supervisor['businessEmail'],emg],supervisor['mobile']
    
     def SecondaryLocation(self):
@@ -40,7 +41,7 @@ class NotificationRule(object):
     def isOnExclusionList(self,jobTitle):
         
         #TODO add as config   
-        exclusions = 'Group Manager|Director|Chief Executive Officer|Chief Representative China|Chief General Counsel|Chief Operating Officer|Deputy Chief Executive Officer|Chief Financial Officer'
+        exclusions = self._exclusions
 
         array=exclusions.split(':')
         
@@ -54,7 +55,8 @@ class NotificationRule(object):
 
     def isShutdown(self,jobTitle):
 
-        shut='Shutdown' #TODO add as config   
+        #TODO add as config   
+        shut=self._shutdown 
 
         pattern = '.*?{}.*'.format(shut.lower())
         result = re.match(pattern, jobTitle.lower())

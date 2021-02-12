@@ -1,0 +1,77 @@
+{
+  "version": "1",
+  "identification": {
+    "sw_product": {
+      "value": "1",
+      "ui_title": "Software Product",
+      "ui_description": "Specifies the internal software product identity of the instrument"
+    },
+    "assembly": {
+      "value": "AS-00097-07",
+      "ui_title": "Assembly Code",
+      "ui_description": "Assembly component ID for instrument."
+    },
+    "software": {
+      "value": "bk-17.0",
+      "ui_title": "Software Version",
+      "ui_description": "A single version string (tag) that describes the entire actinium software stack. This datapoint may be empty."
+    },
+    "product": {
+      "value": "WM4",
+      "ui_title": "Product Code",
+      "ui_description": "The product (marketing) code for the device."
+    },
+    "serial": {
+      "value": "33000695",
+      "ui_title": "Serial Number",
+      "ui_description": "Product serial number."
+    },
+    "description": {
+      "value": "UAT Alcolizer",
+      "ui_title": "Description",
+      "ui_description": "A description of the instrument (location, etc)."
+    }
+  },
+  "groups": {
+    "1": {
+      "ui_title": "Fault",
+      "ui_description": "The instrument has detected a fault and is unable to perform breath analysis. The fault must be repaired by an Alcolizer service technician."
+    },
+    "2": {
+      "ui_title": "Alert",
+      "ui_description": "The instrument has encountered a temporary condition that is preventing the unit from performing breath analysis. The alert will clear automatically."
+    },
+    "3": {
+      "ui_title": "Warning",
+      "ui_description": "The instrument has detected a problem but is still able to perform breath analysis."
+    },
+    "4": {
+      "ui_title": "Notice",
+      "ui_description": "Information that might be useful to a technician but in no way represents a problem with the instrument."
+    },
+    "5": {
+      "ui_title": "Analysis Disabled",
+      "ui_description": "Breath testing is disabled for a reason other than a fault or alert."
+    }
+  },
+  "set": [
+    {
+      "ui_title": "Liquid detected.",
+      "group": "2",
+      "id": "11",
+      "ui_description": "Liquid is detected in the breath sample system. This must dry before the instrument can perform another test."
+    },
+    {
+      "ui_title": "System alert.",
+      "group": "5",
+      "id": "37",
+      "ui_description": "Breath testing is disabled because a temporary error condition was detected."
+    },
+    {
+      "ui_title": "Authorisation required.",
+      "group": "5",
+      "id": "49",
+      "ui_description": "The instrument is not authorised to perform a test until a user code is entered, or an ID card is swiped, etc."
+    }
+  ]
+}

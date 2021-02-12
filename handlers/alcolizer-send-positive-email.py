@@ -26,7 +26,7 @@ def createHtmlEmail(data):
 
 def send(body,recipients):
     
-    noReply = 'ibunney@fmgl.com.au'
+    noReply = store['ses/noreply']
     region  = store['dynamoDB/region'] 
 
     smtpServer = STMPEmail( Region =region)
@@ -38,6 +38,9 @@ def send(body,recipients):
     return smtpServer.send(body)  
     
 def lambda_handler(event, context):
+
+    code=200
+    message='Email was withheld'
 
     global logger
     logger=establish_logger()
@@ -55,7 +58,16 @@ def lambda_handler(event, context):
         recipients= data['recipients']['email']
         logger.info('Supplied message data [%s]',data)
     
-        body=createHtmlEmail(data)        
-        response= send(body,recipients)
-        logger.info('Email notification response [%s].', response)
-        return response
+        body=createHtmlEmail(data)     
+
+        blocked = store['notification/blocked']
+        if blocked != 'TRUE' :
+            message= send(body,recipients)  
+        
+        result= {
+                'blocked' : blocked,
+                'response' : message
+        }
+
+        logger.info('Email Notification Response [%s].', result)
+        return result
