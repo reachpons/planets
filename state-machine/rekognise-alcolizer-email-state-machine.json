@@ -3,7 +3,7 @@
   "States": {
     "ExtractEmailAttachment": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-extract-email-attachment-dev",
+      "Resource": "${AlcolizerExtractEmailAttachmentArn}",
       "Next": "IsAlcolizerEmail"
     },
     "IsAlcolizerEmail": {
@@ -19,7 +19,7 @@
     },
     "ClassifyEmail": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-classify-email-dev",
+      "Resource": "${AlcolizerClassifyEmailArn}",
       "Next": "IsBreathTest"
     },
     "IsBreathTest": {
@@ -51,23 +51,23 @@
     },
     "IgnoreEmail": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-ignore-email-dev",
+      "Resource": "${AlcolizerIgnoreEmailArn}",
       "End": true
     },
     "storeStatusLog": {
       "Type": "Task",
       "ResultPath": "$.status",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-store-status-log-dev",
+      "Resource": "${AlcolizerStoreStatusToS3Arn}",
       "Next": "sendStatusNotification"
     },
     "sendStatusNotification": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-send-status-notification-dev",
+      "Resource": "${AlcolizerSendStatusNotificationArn}",
       "End": true
     },
     "ParseStoreEmail": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-parse-store-email-dev",
+      "Resource": "${AlcolizerParseStoreEmailArn}",
       "Next": "MatchAllFaces"
     },
     "MatchAllFaces": {
@@ -84,7 +84,7 @@
         "States": {
           "MatchFace": {
             "Type": "Task",
-            "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-match-face-dev",
+          "Resource": "${AlcolizerMatchFaceArn}",
             "End": true
           }
         }
@@ -96,7 +96,7 @@
       "Type": "Task",
       "InputPath": "$.event.matches",
       "ResultPath": "$.event.weighted",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-weight-rekognition-dev",
+      "Resource": "${AlcolizerWeightRekognitionArn}",
       "Next": "IsPositiveResult"
     },
     "IsPositiveResult": {
@@ -114,13 +114,13 @@
       "Type": "Task",
       "InputPath": "$",
       "ResultPath": "$.event.notification",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-send-positive-notification-dev",
+      "Resource": "${AlcolizerSendPositiveNotificationArn}",
       "Next": "storeOutputToS3"
     },
     "storeOutputToS3": {
       "Type": "Task",
       "InputPath": "$",
-      "Resource": "arn:aws:lambda:ap-southeast-2:317510107845:function:alcolizer-store-output-s3-dev",
+      "Resource": "${AlcolizerStoreOutputToS3Arn}",
       "End": true
     }
   }
