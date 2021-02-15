@@ -1,0 +1,19 @@
+[
+  {
+    "ParameterKey": "ECRRepoName",
+    "ParameterValue": "alcolizerrepouat"
+  }, 
+  {
+    "ParameterKey": "VPC",
+    "ParameterValue": "vpc-0159fa80f47d2d416"
+  }, 
+  {
+    "ParameterKey": "EnvName",
+    "ParameterValue": "uat"
+  },   
+  {
+    "ParameterKey": "SubnetIds",
+    "ParameterValue": "subnet-08e5a736badd6854d,subnet-023df08ac200dbeca"
+  }
+  
+]
