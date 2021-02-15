@@ -5,13 +5,13 @@ Description: >-
 Parameters:
   HierarchyKey:
     Type: String
-    Default: dev
+    Default: uat
     Description: This is the environment that will determine the SSMParamaters - dev/test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.    
   AlcolizerBucket:
     Type: String
-    Default: dev-alcolizer-rekognition 
+    Default: uat-alcolizer-rekognition 
     Description: The name of the S3 bucket to store the Alcolizer files.
     MinLength: '1'
     ConstraintDescription: This parameter is required.    
