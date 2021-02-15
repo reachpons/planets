@@ -4,7 +4,7 @@ Description: >-
 Parameters:
   HierarchyKey:
     Type: String
-    Default: ianb
+    Default: uat
     Description: This is the environment that will determine the SSMParamaters - dev/test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.  
@@ -45,6 +45,18 @@ Resources:
       AttributeDefinitions: 
         - AttributeName: 'rowUid'
           AttributeType: 'S'
+        - AttributeName: 'eventId'
+          AttributeType: 'S'
+      GlobalSecondaryIndexes:
+        - IndexName:  !Join ['', ['alcolizer-', !Ref HierarchyKey, '-result-secondary-index']]
+          KeySchema:
+            - AttributeName: eventId
+              KeyType: HASH
+          Projection:           
+            ProjectionType: ALL
+          ProvisionedThroughput: 
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5      
   AlcolizerConfig: 
     Type: AWS::DynamoDB::Table
     Properties: 
@@ -83,7 +95,7 @@ Resources:
           Statement: 
           - Effect: Allow
             Action:
-              - application-autoscaling:*
+              - application-autoscaling:* 
               - dynamodb:DescribeTable
               - dynamodb:UpdateTable
               - cloudwatch:PutMetricAlarm
