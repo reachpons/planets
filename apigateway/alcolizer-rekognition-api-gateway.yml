@@ -51,7 +51,7 @@ Resources:
                         "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:/*",
                         "Condition": {
                             "StringNotEquals": {
-                                "aws:sourceVpc": "vpc-0159fa80f47d2d416"
+                                "aws:sourceVpce": "vpce-0da92fa5bb14bfa0f"
                             }
                         }
                     },
@@ -59,7 +59,7 @@ Resources:
                         "Effect": "Allow",
                         "Principal": "*",
                         "Action": "execute-api:Invoke",
-                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:/*"
+                        "Resource": "arn:aws:execute-api:ap-southeast-2:317510107845:z00unh94zb/*"
                     }
                 ]
             }
