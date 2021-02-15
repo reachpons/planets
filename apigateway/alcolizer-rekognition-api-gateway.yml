@@ -8,18 +8,18 @@ Parameters:
     Description: The name of VPC that the application 
     MinLength: '1'
     ConstraintDescription: This parameter is required    
-  AlcolizerBucket:
-    Type: String
-    Default: dev-alcolizer-rekognition 
-    Description: The name of the S3 bucket to store the Alcolizer files.
-    MinLength: '1'
-    ConstraintDescription: This parameter is required.    
   HierarchyKey:
     Type: String
-    Default: dev
+    Default: uat
     Description: This is the environment that will determine the SSMParamaters - dev/test/production
     MinLength: '1'
     ConstraintDescription: This parameter is required.    
+  AlcolizerBucket:
+    Type: String
+    Default: uat-alcolizer-rekognition 
+    Description: The name of the S3 bucket to store the Alcolizer files.
+    MinLength: '1'
+    ConstraintDescription: This parameter is required.     
   VPCAPIGatewayEndpoint:
     Type: String
     Default: vpce-0da92fa5bb14bfa0f
@@ -32,7 +32,7 @@ Resources:
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: alcolizer-rekognition
+      Name:  !Join ['', ['alcolizer-rekognition', '-', !Ref 'HierarchyKey']]
       ApiKeySourceType: HEADER
       Description: A Private API Gateway for the Alcolizer-rekognition app      
       EndpointConfiguration:
@@ -187,7 +187,7 @@ Resources:
   LambdaExecutionRole:
     Type: 'AWS::IAM::Role'    
     Properties:
-      RoleName: alcolizer-rekognition-apigateway-lambda-role-dev
+      RoleName: !Join ['', ['alcolizer-rekognition-apigateway-lambda-role', '-', !Ref 'HierarchyKey']]
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
