@@ -35,10 +35,11 @@ class STMPEmail(object):
 
         client = bto.client('ses',region_name=self._region)
 
+        filtered=list(filter(None, self._recipients))
         try:   
             response = client.send_email(
                 Destination={
-                    'ToAddresses': self._recipients
+                    'ToAddresses': filtered
                 },
                 Message={
                     'Body': {

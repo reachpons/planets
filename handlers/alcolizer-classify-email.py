@@ -64,6 +64,8 @@ def isStatus(dict):
 def isLog(dict):
     
     params=dict.get(PARAMETERS)  
+    if params is None : return False 
+    
     return {'22','23'} <= params.keys()
 
 def isResult(dict):
