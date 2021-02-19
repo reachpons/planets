@@ -1,5 +1,8 @@
 import json
 import logging
+import os
+from ssm_parameter_store import SSMParameterStore
+
 
 EVENT='event'
 ID='id'
@@ -50,6 +53,16 @@ def determine(pairs):
 
     return (sapid,final,confidence)
 
+def presentationBand(six):
+
+    t = store["rekognition/presentation"]
+    data=json.loads(t)
+    inv={}
+    for key, val in data.items():    
+        for v in val:  inv[v]=key
+
+    return inv[six]
+
 def weight(event):
     pairs=[]
     answer=None
@@ -62,17 +75,21 @@ def weight(event):
 
     pairs.sort(reverse=True, key = lambda x: x[0])  
  
+    sapid,final,confidence=determine(pairs)    
 
-    sapid,final,confidence=determine(pairs)
-           
     return { 
             'similarity' : final,
             'sapid' :sapid,
-            'confidence' : confidence
+            'raw' : confidence,
+            'confidence' : presentationBand(confidence)
         }
 
 def lambda_handler(event, context):
     
+    hierarchy = os.environ['hierarchy']
+    global store
+    store=SSMParameterStore(Path='/alcolizer-rekognition/{}'.format(hierarchy) )
+
     logger=establish_logger()
     logger.info(event) 
 

@@ -64,12 +64,14 @@ def isStatus(dict):
 def isLog(dict):
     
     params=dict.get(PARAMETERS)  
+    if not params : return False 
+    
     return {'22','23'} <= params.keys()
 
 def isResult(dict):
     
     params=dict.get(PARAMETERS)   
-    if params is None : return False 
+    if not params : return False 
 
     #test whether every element in l in r 
     return  {'47','56','54','9','2'} <= params.keys()

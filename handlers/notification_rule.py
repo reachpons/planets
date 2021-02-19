@@ -6,7 +6,7 @@ class NotificationRule(object):
 
     def __init__(self,store,site):
         self._exclusions=store['notifications/exclusions']
-        self._shutdown['notifications/shutdown']        
+        self._shutdown=store['notifications/shutdown']        
         self._config=NotificationConfig(store,site)           
                 
 
